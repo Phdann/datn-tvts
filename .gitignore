@@ -1,0 +1,19 @@
+.env
+.DS_Store
+.vscode/
+.idea/
+
+# --- PYTHON (ser-py) ---
+__pycache__/
+*.py[cod]
+venv/
+chroma_db/
+
+# --- NODEJS (server & client) ---
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# --- REACT BUILD (client) ---
+dist/
+build/
