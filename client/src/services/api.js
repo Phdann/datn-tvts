@@ -21,6 +21,25 @@ api.interceptors.request.use(
     }
 );
 
+const translateError = (error) => {
+    if (!error.response) {
+        if (error.code === 'ECONNABORTED') return 'Yêu cầu quá hạn. Vui lòng thử lại.';
+        return 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.';
+    }
+
+    const { status, data } = error.response;
+    if (data?.message) return data.message; // Use backend message if available
+
+    switch (status) {
+        case 400: return 'Yêu cầu không hợp lệ (400).';
+        case 401: return 'Phiên làm việc hết hạn. Vui lòng đăng nhập lại.';
+        case 403: return 'Bạn không có quyền thực hiện hành động này.';
+        case 404: return 'Không tìm thấy dữ liệu (404).';
+        case 500: return 'Máy chủ gặp lỗi (500). Vui lòng thử lại sau.';
+        default: return `Lỗi hệ thống (${status}).`;
+    }
+};
+
 api.interceptors.response.use(
     (response) => {
         return response;
@@ -28,7 +47,6 @@ api.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401) {
             const requestUrl = error.config?.url || '';
-            
             if (requestUrl.includes('/admin/')) {
                 localStorage.removeItem('adminToken');
                 localStorage.removeItem('adminUser');
@@ -36,13 +54,8 @@ api.interceptors.response.use(
             }
         }
         
-        if (error.response?.status === 403) {
-            console.error('Access forbidden');
-        }
-        
-        if (error.response?.status === 500) {
-            console.error('Server error:', error.response.data);
-        }
+        // Translate technical message to Vietnamese
+        error.message = translateError(error);
         
         return Promise.reject(error);
     }

@@ -34,6 +34,15 @@ const settingsService = {
     getPublicConfig: async () => {
         const response = await api.get('/config');
         return response.data;
+    },
+
+    uploadSettingImage: async (key, file) => {
+        const formData = new FormData();
+        formData.append('image', file);
+        const response = await api.post(`/admin/settings/upload/${key}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return response.data;
     }
 };
 
