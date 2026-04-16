@@ -4,17 +4,17 @@ module.exports = {
   development: {
     username: process.env.DB_USER || 'root',
     password: process.env.DB_PASS || '',
-    database: process.env.DB_NAME || 'datn_tvts',
+    database: process.env.DB_NAME || 'tuyensinh_db',
     host: process.env.DB_HOST || 'localhost',
-    dialect: 'mysql',
+    dialect: process.env.DB_DIALECT || 'mysql',
     logging: false
   },
   test: {
     username: process.env.DB_USER || 'root',
     password: process.env.DB_PASS || '',
-    database: process.env.DB_NAME || 'tuyensinh_db_test',
+    database: process.env.DB_NAME_TEST || 'tuyensinh_db_test',
     host: process.env.DB_HOST || 'localhost',
-    dialect: 'mysql',
+    dialect: process.env.DB_DIALECT || 'mysql',
     logging: false
   },
   production: {
@@ -22,7 +22,7 @@ module.exports = {
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
-    dialect: 'mysql',
+    dialect: process.env.DB_DIALECT || 'mysql',
     logging: false
   }
 };

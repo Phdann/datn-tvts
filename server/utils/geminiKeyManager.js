@@ -2,13 +2,23 @@ require('dotenv').config();
 
 class GeminiKeyManager {
     constructor() {
-        try {
-            this.keys = JSON.parse(process.env.GEMINI_KEYS || "[]");
-        } catch (e) {
-            console.error("Failed to parse GEMINI_KEYS from .env. Ensure it is a valid JSON array.");
-            this.keys = [];
-        }
+        this.keys = this.loadKeys();
         this.currentIndex = 0;
+    }
+
+    loadKeys() {
+        const rawKeys = process.env.GEMINI_KEYS || "";
+        
+        // Try parsing as JSON array first
+        try {
+            const parsed = JSON.parse(rawKeys);
+            if (Array.isArray(parsed)) return parsed;
+        } catch (e) {
+            // Not a JSON array, fall back to comma-separated string
+        }
+
+        // Split by comma and filter out empty strings
+        return rawKeys.split(',').map(k => k.trim()).filter(k => k !== "");
     }
 
     getNextKey() {
@@ -18,8 +28,17 @@ class GeminiKeyManager {
         }
         
         const key = this.keys[this.currentIndex];
+        
+        // Log current key being used (masked for security)
+        const maskedKey = key.substring(0, 6) + "..." + key.substring(key.length - 4);
+        console.log(`Using Gemini API Key [Index: ${this.currentIndex}]: ${maskedKey}`);
+
         this.currentIndex = (this.currentIndex + 1) % this.keys.length;
         return key;
+    }
+
+    getKeyCount() {
+        return this.keys.length;
     }
 }
 

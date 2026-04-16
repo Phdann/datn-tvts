@@ -18,7 +18,11 @@ const sendMessage = async (req, res) => {
         
         if (!session) {
             session = await ChatSession.create({
-                user_id: req.user?.id || null
+                user_id: req.user?.id || null,
+                visitor_name: context?.user_info?.name,
+                visitor_phone: context?.user_info?.phone,
+                visitor_email: context?.user_info?.email,
+                visitor_school: context?.user_info?.school
             });
         }
 
@@ -44,7 +48,8 @@ const sendMessage = async (req, res) => {
         await ChatMessage.create({
             session_id: session.id,
             role: 'assistant',
-            content: aiResponse.reply
+            content: aiResponse.reply,
+            metadata: aiResponse.related_data || null
         });
 
         const response = {

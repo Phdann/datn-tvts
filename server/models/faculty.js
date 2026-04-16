@@ -3,7 +3,7 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Faculty extends Model {
     static associate(models) {
-      Faculty.hasMany(models.Major, { foreignKey: 'faculty_id' });
+      Faculty.hasMany(models.Major, { foreignKey: 'faculty_id', as: 'Majors' });
     }
   }
   Faculty.init({
@@ -20,7 +20,8 @@ module.exports = (sequelize, DataTypes) => {
       unique: true
     },
     introduction: DataTypes.TEXT,
-    logo_url: DataTypes.STRING
+    logo_url: DataTypes.STRING,
+    banner_image_url: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Faculty',
