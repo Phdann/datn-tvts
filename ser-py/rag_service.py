@@ -114,7 +114,11 @@ async def search(request: QueryRequest):
         # 3. Trả về context
         context_list = []
         if results['documents'] and len(results['documents'][0]) > 0:
-            context_list = results['documents'][0]
+            for doc, meta in zip(results['documents'][0], results['metadatas'][0]):
+                context_list.append({
+                    "content": doc,
+                    "source": meta.get("source", "Unknown")
+                })
             
         return {"context": context_list}
     except HTTPException as he:
@@ -137,4 +141,6 @@ async def delete_doc(request: DeleteRequest):
 
 if __name__ == "__main__":
     print(f"Đang khởi chạy với {len(API_KEYS)} API Keys...")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    import os
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
