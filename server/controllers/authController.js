@@ -33,9 +33,15 @@ const login = async (req, res) => {
 
         await user.update({ last_login: new Date() });
 
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            console.error('FATAL ERROR: JWT_SECRET is not defined');
+            return res.status(500).json({ message: 'Internal server configuration error' });
+        }
+
         const token = jwt.sign(
             { id: user.id, role: user.Role?.name || 'CANDIDATE' },
-            process.env.JWT_SECRET || 'secret_key',
+            secret,
             { expiresIn: '7d' }
         );
 

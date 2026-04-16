@@ -8,7 +8,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   ChatSession.init({
-    user_id: DataTypes.INTEGER
+    user_id: DataTypes.INTEGER,
+    visitor_name: DataTypes.STRING,
+    visitor_phone: DataTypes.STRING,
+    visitor_email: DataTypes.STRING,
+    visitor_school: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'ChatSession',

@@ -10,7 +10,12 @@ const authMiddleware = async (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key');
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            console.error('FATAL ERROR: JWT_SECRET is not defined in environment variables.');
+            return res.status(500).json({ message: 'Internal server configuration error' });
+        }
+        const decoded = jwt.verify(token, secret);
         
         const user = await User.findByPk(decoded.id, {
             include: [{ model: Role }]
@@ -24,7 +29,7 @@ const authMiddleware = async (req, res, next) => {
             return res.status(403).json({ message: 'Account has been banned' });
         }
 
-        await user.update({ last_login: new Date() });
+        
 
         req.user = user;
         next();

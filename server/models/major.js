@@ -8,12 +8,19 @@ module.exports = (sequelize, DataTypes) => {
       Major.hasMany(models.Specialization, { foreignKey: 'major_id' });
       
       Major.belongsToMany(models.SubjectGroup, { 
-        through: 'MajorSubjectMapping',
+        through: models.MajorSubjectMapping,
         foreignKey: 'major_id'
       });
       Major.hasMany(models.HistoricalScore, { foreignKey: 'major_id' });
-      Major.hasMany(models.Application, { foreignKey: 'major_id' });
+
       Major.hasMany(models.MajorImage, { foreignKey: 'major_id', as: 'Images' });
+
+      Major.belongsToMany(models.TrainingType, { 
+        through: 'MajorTrainingType',
+        foreignKey: 'major_id',
+        otherKey: 'training_type_id',
+        as: 'TrainingTypes',
+      });
     }
   }
   Major.init({

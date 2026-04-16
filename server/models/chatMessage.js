@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
     content: {
       type: DataTypes.TEXT,
       allowNull: false
+    },
+    metadata: {
+      type: DataTypes.JSON,
+      allowNull: true
     }
   }, {
     sequelize,
