@@ -10,6 +10,12 @@ export const login = async (credentials) => {
     
     return response.data;
 };
+
+export const registerCandidate = async (userData) => {
+    const response = await api.post('/auth/register-candidate', userData);
+    return response.data;
+};
+
 export const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');

@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #2563eb;
+  --color-primary-dark: #1d4ed8;
+  --color-primary-light: #60a5fa;
+  
+  --color-secondary: #1e8e3e;
+  --color-accent: #2b6cb0;
+  
+  --color-background-light: #ffffff;
+  --color-background-gray: #f9fafb;
+
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Inter', system-ui, sans-serif;
+}
+
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  color: #1a202c;
+  background-color: #ffffff;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  @apply bg-white text-blue-950 overflow-x-hidden;
+}
+
+@utility clip-hexagon {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+@utility custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    @apply bg-blue-50;
+  }
+  &::-webkit-scrollbar-thumb {
+    @apply bg-blue-200 rounded-full hover:bg-blue-300 transition-colors;
+  }
+}
+
+/* ──────────────── QUILL CONTENT STYLES ──────────────── */
+.ql-editor {
+  line-height: 1.8 !important;
+  font-size: 1.05rem !important;
+}
+
+.ql-editor h1 { @apply text-3xl font-black mb-6 mt-10 text-blue-950; }
+.ql-editor h2 { @apply text-2xl font-black mb-5 mt-8 text-blue-950; }
+.ql-editor h3 { @apply text-xl font-black mb-4 mt-6 text-blue-950; }
+.ql-editor p { @apply mb-5; }
+
+.ql-editor ul, .ql-editor ol {
+  padding-left: 1.5em !important;
+  margin-bottom: 1.5em !important;
+}
+
+.ql-editor ul { list-style-type: disc !important; }
+.ql-editor ol { list-style-type: decimal !important; }
+
+.ql-editor blockquote {
+  @apply border-l-4 border-primary pl-6 py-2 italic bg-slate-50 my-8 text-slate-600 font-medium;
+}
+
+.ql-editor img {
+  @apply rounded-xl max-w-full h-auto my-8 shadow-lg mx-auto block;
+}
+
+.ql-editor a {
+  @apply text-primary font-bold hover:underline;
+}
+
+/* Indentation support */
+.ql-editor .ql-indent-1 { padding-left: 3em !important; }
+.ql-editor .ql-indent-2 { padding-left: 6em !important; }
+.ql-editor .ql-indent-3 { padding-left: 9em !important; }
+.ql-editor .ql-indent-4 { padding-left: 12em !important; }
+
+/* Text alignment */
+.ql-editor .ql-align-center { text-align: center !important; }
+.ql-editor .ql-align-right { text-align: right !important; }
+.ql-editor .ql-align-justify { text-align: justify !important; }
+
+/* Table basic styling if used */
+.ql-editor table {
+  @apply w-full border-collapse my-8;
+}
+.ql-editor td, .ql-editor th {
+  @apply border border-slate-200 p-3 text-sm;
+}
+.ql-editor tr:nth-child(even) { @apply bg-slate-50; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out forwards;
+}
