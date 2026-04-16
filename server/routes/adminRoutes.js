@@ -16,9 +16,17 @@ const chatController = require('../controllers/chatController');
 const statisticsController = require('../controllers/statisticsController');
 const majorSubjectMappingController = require('../controllers/majorSubjectMappingController');
 const ragController = require('../controllers/ragController');
-const trainingTypeUpload = require('../utils/trainingTypeUpload');
-const configUpload = require('../utils/configUpload');
-const upload = require('../utils/generalUpload');
+const { 
+  uploadGeneral, 
+  uploadMajor, 
+  uploadFaculty, 
+  uploadMethod, 
+  uploadPost, 
+  uploadNews, 
+  uploadBanner, 
+  uploadScholarship, 
+  uploadTrainingType 
+} = require('../utils/cloudinaryUpload');
 
 /**
  * @swagger
@@ -136,7 +144,6 @@ router.delete('/majors/:id', checkRole(['Admin']), majorController.deleteMajor);
 router.get('/majors/:id/statistics', majorController.getMajorStatistics);
 
 const majorImageController = require('../controllers/majorImageController');
-const majorUpload = require('../utils/majorUpload');
 
 /**
  * @swagger
@@ -163,7 +170,7 @@ const majorUpload = require('../utils/majorUpload');
  *       201:
  *         description: Upload thành công
  */
-router.post('/majors/:id/images', majorUpload.array('images', 20), majorImageController.uploadMajorImages);
+router.post('/majors/:id/images', uploadMajor.array('images', 20), majorImageController.uploadMajorImages);
 
 /**
  * @swagger
@@ -208,7 +215,6 @@ router.patch('/images/:imageId/order', majorImageController.updateImageOrder);
  *       201:
  *         description: Thành công
  */
-const facultyUpload = require('../utils/facultyUpload');
 router.get('/faculties', facultyController.getAllFaculties);
 
 /**
@@ -228,8 +234,8 @@ router.get('/faculties', facultyController.getAllFaculties);
  *     security: [ { bearerAuth: [] } ]
  */
 router.get('/faculties/:id', facultyController.getFacultyById);
-router.post('/faculties', facultyUpload.fields([{ name: 'logo_url', maxCount: 1 }, { name: 'banner_image_url', maxCount: 1 }]), facultyController.createFaculty);
-router.put('/faculties/:id', facultyUpload.fields([{ name: 'logo_url', maxCount: 1 }, { name: 'banner_image_url', maxCount: 1 }]), facultyController.updateFaculty);
+router.post('/faculties', uploadFaculty.fields([{ name: 'logo_url', maxCount: 1 }, { name: 'banner_image_url', maxCount: 1 }]), facultyController.createFaculty);
+router.put('/faculties/:id', uploadFaculty.fields([{ name: 'logo_url', maxCount: 1 }, { name: 'banner_image_url', maxCount: 1 }]), facultyController.updateFaculty);
 router.delete('/faculties/:id', checkRole(['Admin']), facultyController.deleteFaculty);
 
 /**
@@ -289,7 +295,6 @@ router.delete('/subject-groups/:id', subjectGroupController.deleteSubjectGroup);
  *     tags: [Admin - Admissions]
  *     security: [ { bearerAuth: [] } ]
  */
-const methodUpload = require('../utils/methodUpload');
 router.get('/admission-methods', admissionMethodController.getAllAdmissionMethods);
 
 /**
@@ -309,8 +314,8 @@ router.get('/admission-methods', admissionMethodController.getAllAdmissionMethod
  *     security: [ { bearerAuth: [] } ]
  */
 router.get('/admission-methods/:id', admissionMethodController.getAdmissionMethodById);
-router.post('/admission-methods', methodUpload.array('images', 20), admissionMethodController.createAdmissionMethod);
-router.put('/admission-methods/:id', methodUpload.array('images', 20), admissionMethodController.updateAdmissionMethod);
+router.post('/admission-methods', uploadMethod.array('images', 20), admissionMethodController.createAdmissionMethod);
+router.put('/admission-methods/:id', uploadMethod.array('images', 20), admissionMethodController.updateAdmissionMethod);
 router.delete('/admission-methods/:id', admissionMethodController.deleteAdmissionMethod);
 
 /**
@@ -509,8 +514,8 @@ router.get('/posts', postController.getAllPosts);
  *     security: [ { bearerAuth: [] } ]
  */
 router.get('/posts/:id', postController.getPostById);
-router.post('/posts', upload.single('image_url'), postController.createPost);
-router.put('/posts/:id', upload.single('image_url'), postController.updatePost);
+router.post('/posts', uploadPost.single('image_url'), postController.createPost);
+router.put('/posts/:id', uploadPost.single('image_url'), postController.updatePost);
 router.delete('/posts/:id', postController.deletePost);
 
 /**
@@ -767,8 +772,8 @@ router.get('/news', newsController.getAllNews);
  *     security: [ { bearerAuth: [] } ]
  */
 router.get('/news/:id', newsController.getNewsById);
-router.post('/news', upload.single('featured_image'), newsController.createNews);
-router.put('/news/:id', upload.single('featured_image'), newsController.updateNews);
+router.post('/news', uploadNews.single('featured_image'), newsController.createNews);
+router.put('/news/:id', uploadNews.single('featured_image'), newsController.updateNews);
 router.delete('/news/:id', newsController.deleteNews);
 
 /**
@@ -803,8 +808,8 @@ router.get('/events', eventController.getAllEvents);
  *     security: [ { bearerAuth: [] } ]
  */
 router.get('/events/:id', eventController.getEventById);
-router.post('/events', upload.single('image'), eventController.createEvent);
-router.put('/events/:id', upload.single('image'), eventController.updateEvent);
+router.post('/events', uploadPost.single('image'), eventController.createEvent);
+router.put('/events/:id', uploadPost.single('image'), eventController.updateEvent);
 router.delete('/events/:id', eventController.deleteEvent);
 
 /**
@@ -839,8 +844,8 @@ router.get('/banners', bannerController.getAllBanners);
  *     security: [ { bearerAuth: [] } ]
  */
 router.get('/banners/:id', bannerController.getBannerById);
-router.post('/banners', upload.single('image_url'), bannerController.createBanner);
-router.put('/banners/:id', upload.single('image_url'), bannerController.updateBanner);
+router.post('/banners', uploadBanner.single('image_url'), bannerController.createBanner);
+router.put('/banners/:id', uploadBanner.single('image_url'), bannerController.updateBanner);
 router.delete('/banners/:id', bannerController.deleteBanner);
 
 /**
@@ -885,8 +890,8 @@ router.get('/scholarships', scholarshipController.getAllScholarships);
  *     security: [ { bearerAuth: [] } ]
  */
 router.get('/scholarships/:id', scholarshipController.getScholarshipById);
-router.post('/scholarships', upload.array('images', 20), scholarshipController.createScholarship);
-router.put('/scholarships/:id', upload.array('images', 20), scholarshipController.updateScholarship);
+router.post('/scholarships', uploadScholarship.array('images', 20), scholarshipController.createScholarship);
+router.put('/scholarships/:id', uploadScholarship.array('images', 20), scholarshipController.updateScholarship);
 router.delete('/scholarships/:id', scholarshipController.deleteScholarship);
 
 
@@ -922,8 +927,8 @@ router.get('/training-types', trainingTypeController.getAllTrainingTypes);
  *     security: [ { bearerAuth: [] } ]
  */
 router.get('/training-types/:id', trainingTypeController.getTrainingTypeById);
-router.post('/training-types', trainingTypeUpload.array('images', 20), trainingTypeController.createTrainingType);
-router.put('/training-types/:id', trainingTypeUpload.array('images', 20), trainingTypeController.updateTrainingType);
+router.post('/training-types', uploadTrainingType.array('images', 20), trainingTypeController.createTrainingType);
+router.put('/training-types/:id', uploadTrainingType.array('images', 20), trainingTypeController.updateTrainingType);
 router.delete('/training-types/:id', checkRole(['Admin']), trainingTypeController.deleteTrainingType);
 
 
@@ -1013,3 +1018,4 @@ router.put('/chat-data/:id', checkRole(['Admin']), ragController.updateKnowledge
 router.delete('/chat-data/:id', checkRole(['Admin']), ragController.deleteKnowledge);
 
 module.exports = router;
+
