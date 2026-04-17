@@ -2,15 +2,21 @@ const PDFDocument = require('pdfkit-table');
 const path = require('path');
 const fs = require('fs');
 
-const FONT_CANDIDATES = [
-    { name: 'Arial', path: 'C:\\Windows\\Fonts\\arial.ttf' },
-    { name: 'Tahoma', path: 'C:\\Windows\\Fonts\\tahoma.ttf' },
-    { name: 'Calibri', path: 'C:\\Windows\\Fonts\\calibri.ttf' },
-    { name: 'LiberationSans', path: path.join(__dirname, '..', 'assets', 'fonts', 'LiberationSans-Regular.ttf') },
-];
+// Path to the font file in the assets directory
+const localFontPath = path.join(__dirname, '..', 'assets', 'fonts', 'LiberationSans-Regular.ttf');
 
 const resolveFont = () => {
-    const match = FONT_CANDIDATES.find((font) => fs.existsSync(font.path));
+    // Priority: 1. Local project font, 2. Windows Arial, 3. Windows Tahoma, 4. Standard Helvetica
+    if (fs.existsSync(localFontPath)) {
+        return { name: 'LiberationSans', path: localFontPath };
+    }
+    
+    const systemFonts = [
+        { name: 'Arial', path: 'C:\\Windows\\Fonts\\arial.ttf' },
+        { name: 'Tahoma', path: 'C:\\Windows\\Fonts\\tahoma.ttf' }
+    ];
+
+    const match = systemFonts.find((font) => fs.existsSync(font.path));
     return match || { name: 'Helvetica', path: null };
 };
 
@@ -22,22 +28,23 @@ const resolveFont = () => {
 const generateDashboardPDF = async (data) => {
     return new Promise((resolve, reject) => {
         try {
+            const selectedFont = resolveFont();
+            
             const doc = new PDFDocument({
                 margin: 30,
                 size: 'A4',
                 bufferPages: true,
             });
-            const buffers = [];
-
-            doc.on('data', buffers.push.bind(buffers));
-            doc.on('end', () => resolve(Buffer.concat(buffers)));
-
-            const selectedFont = resolveFont();
+            
+            // Register and set font globally if path exists
             if (selectedFont.path) {
                 doc.registerFont(selectedFont.name, selectedFont.path);
-            } else {
-                console.warn('No Unicode font found for dashboard PDF export. Falling back to Helvetica.');
+                doc.font(selectedFont.name);
             }
+
+            const buffers = [];
+            doc.on('data', buffers.push.bind(buffers));
+            doc.on('end', () => resolve(Buffer.concat(buffers)));
 
             const applyFont = () => doc.font(selectedFont.name);
             const applyBodyText = () => applyFont().fontSize(10).fillColor('#334155');
@@ -57,72 +64,70 @@ const generateDashboardPDF = async (data) => {
 
             const timestamp = new Date().toLocaleString('vi-VN');
 
-            applyFont();
-            doc.fontSize(22).fillColor('#0f172a').text('\u0042\u00c1\u004f\u0020\u0043\u00c1\u004f\u0020\u0054\u1ed4\u004e\u0047\u0020\u0051\u0055\u0041\u004e\u0020\u0048\u1ec6\u0020\u0054\u0048\u1ed0\u004e\u0047', { align: 'center' });
+            // --- PDF CONTENT START ---
+
+            // Header
+            applyFont().fontSize(22).fillColor('#0f172a').text('BÁO CÁO TỔNG QUAN HỆ THỐNG', { align: 'center' });
             doc.moveDown(0.5);
 
-            applyFont();
-            doc.fontSize(10).fillColor('#64748b').text(`\u004e\u0067\u00e0\u0079\u0020\u0078\u0075\u1ea5\u0074\u0020\u0062\u00e1\u006f\u0020\u0063\u00e1\u006f\u003a ${timestamp}`, { align: 'center' });
+            applyFont().fontSize(10).fillColor('#64748b').text(`Ngày xuất báo cáo: ${timestamp}`, { align: 'center' });
             doc.moveDown(1);
 
             doc.strokeColor('#e2e8f0').lineWidth(1).moveTo(30, doc.y).lineTo(565, doc.y).stroke();
             doc.moveDown(1.5);
 
-            applyFont();
-            doc.fontSize(16).fillColor('#1e293b').text('1. \u0053\u1ed1\u0020\u006c\u0069\u1ec7\u0075\u0020\u0074\u1ed5\u006e\u0067\u0020\u0071\u0075\u0061\u006e', { underline: true });
+            // 1. Overview Section
+            applyFont().fontSize(16).fillColor('#1e293b').text('1. Số liệu tổng quan', { underline: true });
             doc.moveDown(0.8);
 
             const overviewTable = {
-                title: '',
-                headers: ['\u0054\u0069\u00ea\u0075\u0020\u0063\u0068\u00ed', '\u0047\u0069\u00e1\u0020\u0074\u0072\u1ecb'],
+                headers: ['Tiêu chí', 'Giá trị'],
                 rows: [
-                    ['\u004e\u0067\u00e0\u006e\u0068\u0020\u0111\u00e0\u006f\u0020\u0074\u1ea1\u006f', String(data.counts?.majors || 0)],
-                    ['\u0051\u0075\u1ea3\u006e\u0020\u0074\u0072\u1ecb\u0020\u0076\u0069\u00ea\u006e', String(data.counts?.users || 0)],
-                    ['\u0050\u0068\u0069\u00ea\u006e\u0020\u0043\u0068\u0061\u0074\u0020\u0041\u0049', String(data.counts?.chat_sessions || 0)],
-                    ['\u004e\u0067\u0075\u1ed3\u006e\u0020\u0074\u0072\u01b0\u1edd\u006e\u0067\u0020\u0054\u0048\u0050\u0054', String(data.schools?.length || 0)],
+                    ['Ngành đào tạo', String(data.counts?.majors || 0)],
+                    ['Quản trị viên', String(data.counts?.users || 0)],
+                    ['Phiên Chat AI', String(data.counts?.chat_sessions || 0)],
+                    ['Nguồn trường THPT', String(data.schools?.length || 0)],
                 ],
             };
 
             doc.table(overviewTable, {
-                prepareHeader: () => applyHeaderText(),
+                prepareHeader: () => applyHeaderText().fontSize(11).font(selectedFont.name + '-Bold' || selectedFont.name),
                 prepareRow: () => applyBodyText(),
                 columnSpacing: 10,
                 padding: 5,
                 columnsSize: [300, 200],
-                headerColor: '#e2e8f0',
+                headerColor: '#f1f5f9',
             });
 
             doc.moveDown(2);
 
-            applyFont();
-            doc.fontSize(16).fillColor('#1e293b').text('2. \u0054\u006f\u0070\u0020\u006e\u0067\u00e0\u006e\u0068\u0020\u0068\u1ecd\u0063\u0020\u0111\u01b0\u1ee3\u0063\u0020\u0071\u0075\u0061\u006e\u0020\u0074\u00e2\u006d', { underline: true });
+            // 2. Popular Majors Section
+            applyFont().fontSize(16).fillColor('#1e293b').text('2. Top ngành học được quan tâm', { underline: true });
             doc.moveDown(0.8);
 
             const majorsTable = {
-                title: '',
-                headers: ['\u0054\u00ea\u006e\u0020\u006e\u0067\u00e0\u006e\u0068', '\u004c\u01b0\u1ee3\u0074\u0020\u0071\u0075\u0061\u006e\u0020\u0074\u00e2\u006d'],
+                headers: ['Tên ngành', 'Lượt quan tâm'],
                 rows: (data.majors || []).map((major) => [
-                    safeText(major.getDataValue ? major.getDataValue('major_name') : major.major_name, '\u004b\u0068\u00f4\u006e\u0067\u0020\u0078\u00e1\u0063\u0020\u0111\u1ecb\u006e\u0068'),
+                    safeText(major.getDataValue ? major.getDataValue('major_name') : major.major_name, 'Không xác định'),
                     getCountValue(major),
                 ]),
             };
 
             doc.table(majorsTable, {
-                prepareHeader: () => applyHeaderText(),
+                prepareHeader: () => applyHeaderText().fontSize(11),
                 prepareRow: () => applyBodyText(),
-                headerColor: '#e2e8f0',
+                headerColor: '#f1f5f9',
                 columnsSize: [400, 100],
             });
 
             doc.moveDown(2);
 
-            applyFont();
-            doc.fontSize(16).fillColor('#1e293b').text('3. \u0043\u00e2\u0075\u0020\u0068\u1ecf\u0069\u0020\u0070\u0068\u1ed5\u0020\u0062\u0069\u1ebf\u006e', { underline: true });
+            // 3. Popular Questions Section
+            applyFont().fontSize(16).fillColor('#1e293b').text('3. Câu hỏi phổ biến', { underline: true });
             doc.moveDown(0.8);
 
             const questionsTable = {
-                title: '',
-                headers: ['\u004e\u1ed9\u0069\u0020\u0064\u0075\u006e\u0067\u0020\u0063\u00e2\u0075\u0020\u0068\u1ecf\u0069', '\u004c\u01b0\u1ee3\u0074\u0020\u0068\u1ecf\u0069'],
+                headers: ['Nội dung câu hỏi', 'Lượt hỏi'],
                 rows: (data.questions || []).map((question) => [
                     safeText(question.content),
                     getCountValue(question),
@@ -130,18 +135,18 @@ const generateDashboardPDF = async (data) => {
             };
 
             doc.table(questionsTable, {
-                prepareHeader: () => applyHeaderText(),
+                prepareHeader: () => applyHeaderText().fontSize(11),
                 prepareRow: () => applyBodyText(),
-                headerColor: '#e2e8f0',
+                headerColor: '#f1f5f9',
                 columnsSize: [420, 80],
             });
 
+            // Footer / Page Numbers
             const range = doc.bufferedPageRange();
             for (let i = range.start; i < range.start + range.count; i += 1) {
                 doc.switchToPage(i);
-                applyFont();
-                doc.fontSize(8).fillColor('#94a3b8').text(
-                    `\u0054\u0072\u0061\u006e\u0067 ${i + 1}/${range.count} - \u0048\u1ec7\u0020\u0074\u0068\u1ed1\u006e\u0067\u0020\u0054\u01b0\u0020\u0076\u1ea5\u006e\u0020\u0054\u0075\u0079\u1ec3\u006e\u0020\u0073\u0069\u006e\u0068\u0020\u0054\u0056\u0054\u0053`,
+                applyFont().fontSize(8).fillColor('#94a3b8').text(
+                    `Trang ${i + 1}/${range.count} - Hệ thống Tư vấn Tuyển sinh TVTS`,
                     0,
                     800,
                     { align: 'center', width: 595 }
@@ -150,6 +155,7 @@ const generateDashboardPDF = async (data) => {
 
             doc.end();
         } catch (err) {
+            console.error('PDF Generation Error:', err);
             reject(err);
         }
     });
