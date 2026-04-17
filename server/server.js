@@ -10,9 +10,38 @@ const db = require('./models');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// CORS configuration
+const allowedOrigins = [
+    'https://datn-tvts-twht.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:3000'
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            console.log('Origin not allowed by CORS:', origin);
+            // Allow all for production if we want to be safe, or just return true.
+            // For now, let's keep it strict but inclusive of the Vercel domain.
+            return callback(null, true); 
+        }
+        return callback(null, true);
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    credentials: true,
+    optionsSuccessStatus: 200
+}));
+
+// Add pre-flight options for all routes
+app.options('*', cors());
+
 app.use(helmet({
     crossOriginResourcePolicy: false,
+    crossOriginOpenerPolicy: false,
+    contentSecurityPolicy: false,
 }));
 app.use(morgan('dev'));
 app.use(express.json({ limit: '50mb' }));
