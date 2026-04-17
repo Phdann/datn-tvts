@@ -25,18 +25,6 @@ const getAllMajors = async (req, res) => {
 
         const { count, rows } = await Major.findAndCountAll({
             where,
-            attributes: {
-                include: [
-                    [
-                        require('sequelize').literal('(SELECT COUNT(*) FROM applications WHERE applications.major_id = Major.id)'),
-                        'application_count'
-                    ],
-                    [
-                        require('sequelize').literal('(SELECT COUNT(*) FROM applications WHERE applications.major_id = Major.id AND applications.status = "Approved")'),
-                        'approved_count'
-                    ]
-                ]
-            },
             include: [
                 { model: Faculty },
                 { model: Specialization },
@@ -186,7 +174,6 @@ const deleteMajor = async (req, res) => {
         const db = require('../models/index');
 
         // Delete associated records to prevent foreign key constraint errors
-        if (db.Application) await db.Application.destroy({ where: { major_id: major.id } });
         await MajorSubjectMapping.destroy({ where: { major_id: major.id } });
         await HistoricalScore.destroy({ where: { major_id: major.id } });
         
@@ -208,28 +195,17 @@ const getMajorStatistics = async (req, res) => {
     try {
         const major = await Major.findByPk(req.params.id, {
             include: [
-                { model: HistoricalScore },
-                { 
-                    model: require('../models/index').Application,
-                    attributes: []
-                }
+                { model: HistoricalScore }
             ]
         });
 
         if (!major) return res.status(404).json({ message: 'Không tìm thấy ngành học' });
 
-        const Application = require('../models/index').Application;
-        const applicationCount = await Application.count({ where: { major_id: major.id } });
-        const approvedCount = await Application.count({ where: { major_id: major.id, status: 'Approved' } });
-
         res.json({
             major_id: major.id,
             major_name: major.name,
-            total_applications: applicationCount,
-            approved_applications: approvedCount,
             historical_scores: major.HistoricalScores,
-            quota: major.quota,
-            quota_filled_percentage: major.quota ? (approvedCount / major.quota * 100).toFixed(2) : 0
+            quota: major.quota
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -239,20 +215,13 @@ const getMajorStatistics = async (req, res) => {
 const getMajorSummaryStats = async (req, res) => {
     try {
         const [
-            totalQuota,
-            totalApplications,
-            totalApproved
+            totalQuota
         ] = await Promise.all([
-            Major.sum('quota'),
-            require('../models/index').Application.count(),
-            require('../models/index').Application.count({ where: { status: 'Approved' } })
+            Major.sum('quota')
         ]);
 
         res.json({
-            total_quota: totalQuota || 0,
-            total_applications: totalApplications,
-            total_approved: totalApproved,
-            fill_rate: totalQuota ? ((totalApproved / totalQuota) * 100).toFixed(2) : 0
+            total_quota: totalQuota || 0
         });
     } catch (error) {
         res.status(500).json({ message: error.message });

@@ -1,4 +1,4 @@
-const { Candidate, Application } = require('../models/index');
+const { Candidate } = require('../models/index');
 const { Op } = require('sequelize');
 
 const getAllCandidates = async (req, res) => {
@@ -23,7 +23,6 @@ const getAllCandidates = async (req, res) => {
 
         const { count, rows } = await Candidate.findAndCountAll({
             where,
-            include: [{ model: Application }],
             limit: parseInt(limit),
             offset: parseInt(offset),
             order: [['createdAt', 'DESC']]
@@ -42,9 +41,7 @@ const getAllCandidates = async (req, res) => {
 
 const getCandidateById = async (req, res) => {
     try {
-        const candidate = await Candidate.findByPk(req.params.id, {
-            include: [{ model: Application }]
-        });
+        const candidate = await Candidate.findByPk(req.params.id);
         
         if (!candidate) return res.status(404).json({ message: 'Candidate not found' });
         
@@ -99,11 +96,6 @@ const deleteCandidate = async (req, res) => {
     try {
         const candidate = await Candidate.findByPk(req.params.id);
         if (!candidate) return res.status(404).json({ message: 'Candidate not found' });
-
-        const applicationCount = await Application.count({ where: { candidate_id: candidate.id } });
-        if (applicationCount > 0) {
-            return res.status(400).json({ message: 'Cannot delete candidate with existing applications' });
-        }
 
         await candidate.destroy();
         res.json({ message: 'Candidate deleted successfully' });
