@@ -227,6 +227,9 @@ const deleteScholarship = async (req, res) => {
             return res.status(404).json({ message: 'Không tìm thấy học bổng' });
         }
         
+        // Delete associated images first to avoid foreign key constraint errors
+        await ScholarshipImage.destroy({ where: { scholarship_id: scholarship.id } });
+        
         await scholarship.destroy();
         res.json({ message: 'Đã xóa học bổng' });
     } catch (error) {

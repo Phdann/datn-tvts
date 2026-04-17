@@ -13,6 +13,7 @@ import ConfirmModal from '../../components/ConfirmModal';
 export default function AdminMajorList() {
   const [majors, setMajors] = useState([]);
   const [faculties, setFaculties] = useState([]);
+  const [trainingTypes, setTrainingTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -82,7 +83,21 @@ export default function AdminMajorList() {
     facultyService.getAllFaculties().then(res => {
       setFaculties(Array.isArray(res) ? res : res.data || []);
     }).catch(console.error);
+    trainingTypeService.getAllTrainingTypes().then(res => {
+      setTrainingTypes(Array.isArray(res) ? res : res.data || []);
+    }).catch(console.error);
   }, []);
+
+  const handleTrainingTypeChange = (id) => {
+    setForm(prev => {
+      const currentIds = prev.training_type_ids || [];
+      if (currentIds.includes(id)) {
+        return { ...prev, training_type_ids: currentIds.filter(i => i !== id) };
+      } else {
+        return { ...prev, training_type_ids: [...currentIds, id] };
+      }
+    });
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -387,6 +402,30 @@ export default function AdminMajorList() {
               <div className="space-y-1.5 mt-4">
                 <label className="text-[10px] font-black text-slate-500 uppercase ml-1">Giới thiệu ngành học</label>
                 <textarea rows={5} value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="Mô tả về ngành nghề đào tạo..." className="w-full bg-slate-50 border border-slate-200 p-4 text-sm font-medium rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary shadow-inner-sm resize-none transition-all" />
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-500 uppercase ml-1 block">Hệ đào tạo (Chọn tối đa 5 hệ) *</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {trainingTypes.map(t => (
+                    <label 
+                      key={t.id} 
+                      className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${
+                        form.training_type_ids?.includes(t.id) 
+                          ? 'border-primary bg-primary/5 text-primary' 
+                          : 'border-slate-100 bg-slate-50 text-slate-500 hover:border-slate-200'
+                      }`}
+                    >
+                      <input 
+                        type="checkbox" 
+                        className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary cursor-pointer" 
+                        checked={form.training_type_ids?.includes(t.id)}
+                        onChange={() => handleTrainingTypeChange(t.id)} 
+                      />
+                      <span className="text-xs font-bold">{t.name}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               <div className="pt-6 flex gap-4 shrink-0 border-t border-slate-100 mt-6">

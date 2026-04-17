@@ -84,8 +84,10 @@ const createMajor = async (req, res) => {
     try {
         const { code, name, faculty_id, tuition, quota, description, subject_group_ids, training_type_ids } = req.body;
         
-        if (training_type_ids && (training_type_ids.length < 1 || training_type_ids.length > 3)) {
-            return res.status(400).json({ message: 'Vui lòng chọn từ 1 đến 3 loại hình đào tạo' });
+        if (training_type_ids && training_type_ids.length > 0) {
+            if (training_type_ids.length > 5) { // Increased limit to 5
+                return res.status(400).json({ message: 'Vui lòng chọn tối đa 5 loại hình đào tạo' });
+            }
         }
         
         if (!code || !name || !faculty_id) {
@@ -132,8 +134,10 @@ const updateMajor = async (req, res) => {
 
         const { code, name, faculty_id, tuition, quota, description, subject_group_ids, training_type_ids } = req.body;
 
-        if (training_type_ids && (training_type_ids.length < 1 || training_type_ids.length > 3)) {
-            return res.status(400).json({ message: 'Vui lòng chọn từ 1 đến 3 loại hình đào tạo' });
+        if (training_type_ids && training_type_ids.length > 0) {
+            if (training_type_ids.length > 5) { // Increased limit to 5
+                return res.status(400).json({ message: 'Vui lòng chọn tối đa 5 loại hình đào tạo' });
+            }
         }
 
 
