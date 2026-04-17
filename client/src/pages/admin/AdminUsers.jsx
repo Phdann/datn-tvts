@@ -228,7 +228,7 @@ export default function AdminUsers() {
                       <option value="">-- Chọn vai trò --</option>
                       {roles
                         .filter(r => r.name.toLowerCase() !== 'candidate' && r.name.toLowerCase() !== 'user')
-                        .map(r=><option key={r.id} value={r.id}>{r.name.toLowerCase() === 'admin' ? 'ADMIN' : r.name}</option>)
+                        .map(r=><option key={r.id} value={r.id}>{r.name.toUpperCase()}</option>)
                       }
                     </select>
                   </div>
