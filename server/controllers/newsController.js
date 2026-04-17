@@ -47,7 +47,7 @@ const createNews = async (req, res) => {
         const newsData = { ...req.body };
         
         if (req.file) {
-            newsData.featured_image = `/uploads/news/${req.file.filename}`;
+            newsData.featured_image = req.file.path;
         }
         
         if (!newsData.slug && newsData.title) {
@@ -80,15 +80,7 @@ const updateNews = async (req, res) => {
         const updateData = { ...req.body };
         
         if (req.file) {
-            if (news.featured_image) {
-                const oldImagePath = path.join(__dirname, '..', news.featured_image);
-                try {
-                    await fs.unlink(oldImagePath);
-                } catch (err) {
-                    console.error('Error deleting old image:', err);
-                }
-            }
-            updateData.featured_image = `/uploads/news/${req.file.filename}`;
+            updateData.featured_image = req.file.path;
         }
         
         await news.update(updateData);
@@ -104,15 +96,6 @@ const deleteNews = async (req, res) => {
         
         if (!news) {
             return res.status(404).json({ message: 'Không tìm thấy tin tức' });
-        }
-        
-        if (news.featured_image) {
-            const imagePath = path.join(__dirname, '..', news.featured_image);
-            try {
-                await fs.unlink(imagePath);
-            } catch (err) {
-                console.error('Error deleting image:', err);
-            }
         }
         
         await news.destroy();

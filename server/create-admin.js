@@ -6,14 +6,14 @@ async function createAdmin() {
         await sequelize.authenticate();
         console.log('Database connected.');
 
-        const [adminRole] = await Role.findOrCreate({ where: { name: 'admin' } });
+        const [adminRole] = await Role.findOrCreate({ where: { name: 'Admin' } });
         console.log('Admin role ensured:', adminRole.id);
 
-        const email = 'admin1@uni.edu.vn';
+        const email = 'admin1@due.edu.vn';
         const [user, created] = await User.findOrCreate({
             where: { email },
             defaults: {
-                password: 'adminpassword',
+                password: 'admin123',
                 role_id: adminRole.id,
                 name: 'System Admin'
             }

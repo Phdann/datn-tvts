@@ -57,7 +57,7 @@ const createAdmissionMethod = async (req, res) => {
         
         // Handle files
         if (req.files && req.files.length > 0) {
-            image_urls = req.files.map(file => `/uploads/methods/${file.filename}`);
+            image_urls = req.files.map(file => file.path);
         }
         
         // Handle URLs
@@ -111,7 +111,7 @@ const updateAdmissionMethod = async (req, res) => {
 
         let new_image_urls = [];
         if (req.files && req.files.length > 0) {
-            new_image_urls = req.files.map(f => `/uploads/methods/${f.filename}`);
+            new_image_urls = req.files.map(f => f.path);
         }
 
         // Handle newly added URLs from body

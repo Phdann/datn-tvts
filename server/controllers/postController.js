@@ -126,7 +126,7 @@ const createPost = async (req, res) => {
             category_id: category_id || null,
             author_id: req.user?.id, 
             status,
-            image_url: req.file ? `/uploads/posts/${req.file.filename}` : req.body.image_url
+            image_url: req.file ? req.file.path : req.body.image_url
         });
 
         res.status(201).json(post);
@@ -144,7 +144,7 @@ const updatePost = async (req, res) => {
         const updateData = { title, content, category_id: category_id || null, status };
         
         if (req.file) {
-            updateData.image_url = `/uploads/posts/${req.file.filename}`;
+            updateData.image_url = req.file.path;
         } else if (image_url !== undefined) {
             updateData.image_url = image_url;
         }

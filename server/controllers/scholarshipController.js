@@ -72,7 +72,7 @@ const createScholarship = async (req, res) => {
         
         // Set first image (file or url) as image_url for backward compatibility
         if (req.files && req.files.length > 0) {
-            scholarshipData.image_url = `/uploads/scholarships/${req.files[0].filename}`;
+            scholarshipData.image_url = req.files[0].path;
         } else if (req.body.image_urls && req.body.image_urls.length > 0) {
             const urls = Array.isArray(req.body.image_urls) ? req.body.image_urls : [req.body.image_urls];
             scholarshipData.image_url = urls[0];
@@ -86,7 +86,7 @@ const createScholarship = async (req, res) => {
             req.files.forEach((file, index) => {
                 imagesToCreate.push({
                     scholarship_id: scholarship.id,
-                    url: `/uploads/scholarships/${file.filename}`,
+                    url: file.path,
                     display_order: imagesToCreate.length
                 });
             });
@@ -142,19 +142,9 @@ const updateScholarship = async (req, res) => {
         // Handle deleted images
         if (req.body.deletedImageIds) {
             const deletedIds = JSON.parse(req.body.deletedImageIds);
-            const imagesToDelete = await ScholarshipImage.findAll({
+            await ScholarshipImage.destroy({
                 where: { id: deletedIds, scholarship_id: scholarship.id }
             });
-            
-            for (const img of imagesToDelete) {
-                const imgPath = path.join(__dirname, '..', img.url);
-                try {
-                    await fs.unlink(imgPath);
-                } catch (err) {
-                    console.error('Error deleting image file:', err);
-                }
-                await img.destroy();
-            }
         }
         
         // Add new images (files and urls)
@@ -167,7 +157,7 @@ const updateScholarship = async (req, res) => {
                 maxOrder++;
                 imagesToCreate.push({
                     scholarship_id: scholarship.id,
-                    url: `/uploads/scholarships/${file.filename}`,
+                    url: file.path,
                     display_order: maxOrder
                 });
             });
@@ -231,22 +221,10 @@ const updateScholarship = async (req, res) => {
 
 const deleteScholarship = async (req, res) => {
     try {
-        const scholarship = await Scholarship.findByPk(req.params.id, {
-            include: [{ model: ScholarshipImage, as: 'images' }]
-        });
+        const scholarship = await Scholarship.findByPk(req.params.id);
         
         if (!scholarship) {
             return res.status(404).json({ message: 'Không tìm thấy học bổng' });
-        }
-        
-        // Delete all associated images
-        for (const img of scholarship.images) {
-            const imagePath = path.join(__dirname, '..', img.url);
-            try {
-                await fs.unlink(imagePath);
-            } catch (err) {
-                console.error('Error deleting image file:', err);
-            }
         }
         
         await scholarship.destroy();

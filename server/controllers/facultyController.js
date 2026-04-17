@@ -83,10 +83,10 @@ const createFaculty = async (req, res) => {
 
         // Handle file uploads
         if (req.files?.logo_url?.[0]) {
-            logo_url = `/uploads/faculties/${req.files.logo_url[0].filename}`;
+            logo_url = req.files.logo_url[0].path;
         }
         if (req.files?.banner_image_url?.[0]) {
-            banner_image_url = `/uploads/faculties/${req.files.banner_image_url[0].filename}`;
+            banner_image_url = req.files.banner_image_url[0].path;
         }
 
         const slug = generateSlug(name);
@@ -123,10 +123,10 @@ const updateFaculty = async (req, res) => {
 
         // Handle file uploads
         if (req.files?.logo_url?.[0]) {
-            logo_url = `/uploads/faculties/${req.files.logo_url[0].filename}`;
+            logo_url = req.files.logo_url[0].path;
         }
         if (req.files?.banner_image_url?.[0]) {
-            banner_image_url = `/uploads/faculties/${req.files.banner_image_url[0].filename}`;
+            banner_image_url = req.files.banner_image_url[0].path;
         }
 
         const updateData = {};

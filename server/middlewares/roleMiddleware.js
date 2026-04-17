@@ -13,10 +13,12 @@ const checkRole = (allowedRoles) => {
                 });
             }
 
-            const userRole = req.user.Role.name;
-            if (!allowedRoles.includes(userRole)) {
+            const userRole = req.user.Role.name.toLowerCase();
+            const isAllowed = allowedRoles.some(role => role.toLowerCase() === userRole);
+            
+            if (!isAllowed) {
                 return res.status(403).json({ 
-                    message: `Forbidden - Required roles: ${allowedRoles.join(', ')}. Your role: ${userRole}` 
+                    message: `Forbidden - Required roles: ${allowedRoles.join(', ')}. Your role: ${req.user.Role.name}` 
                 });
             }
 

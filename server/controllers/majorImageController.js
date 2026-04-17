@@ -39,7 +39,7 @@ const uploadMajorImages = async (req, res) => {
 
         const imageRecords = req.files.map(file => ({
             major_id: id,
-            image_url: `/uploads/majors/${file.filename}`,
+            image_url: file.path, // Cloudinary returns the full URL in file.path
             display_order: nextOrder++
         }));
 

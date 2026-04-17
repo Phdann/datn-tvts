@@ -45,7 +45,7 @@ const createEvent = async (req, res) => {
         const eventData = { ...req.body };
         
         if (req.file) {
-            eventData.image = `/uploads/events/${req.file.filename}`;
+            eventData.image = req.file.path;
         }
         
         const event = await Event.create(eventData);
@@ -66,15 +66,7 @@ const updateEvent = async (req, res) => {
         const updateData = { ...req.body };
         
         if (req.file) {
-            if (event.image) {
-                const oldImagePath = path.join(__dirname, '..', event.image);
-                try {
-                    await fs.unlink(oldImagePath);
-                } catch (err) {
-                    console.error('Error deleting old image:', err);
-                }
-            }
-            updateData.image = `/uploads/events/${req.file.filename}`;
+            updateData.image = req.file.path;
         }
         
         await event.update(updateData);
@@ -90,15 +82,6 @@ const deleteEvent = async (req, res) => {
         
         if (!event) {
             return res.status(404).json({ message: 'Không tìm thấy sự kiện' });
-        }
-        
-        if (event.image) {
-            const imagePath = path.join(__dirname, '..', event.image);
-            try {
-                await fs.unlink(imagePath);
-            } catch (err) {
-                console.error('Error deleting image:', err);
-            }
         }
         
         await event.destroy();

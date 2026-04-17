@@ -35,7 +35,7 @@ const createTrainingType = async (req, res) => {
         
         // Handle files
         if (req.files && req.files.length > 0) {
-            image_urls = req.files.map(f => `/uploads/training-types/${f.filename}`);
+            image_urls = req.files.map(f => f.path);
         }
         
         // Handle URLs from body
@@ -82,7 +82,7 @@ const updateTrainingType = async (req, res) => {
 
         let new_image_urls = [];
         if (req.files && req.files.length > 0) {
-            new_image_urls = req.files.map(f => `/uploads/training-types/${f.filename}`);
+            new_image_urls = req.files.map(f => f.path);
         }
 
         // Handle URLs from body

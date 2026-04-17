@@ -50,7 +50,7 @@ const createBanner = async (req, res) => {
     try {
         let image_url = '';
         if (req.file) {
-            image_url = `/uploads/banners/${req.file.filename}`;
+            image_url = req.file.path;
         } else if (req.body.image_url) {
             image_url = req.body.image_url;
         }
@@ -90,15 +90,7 @@ const updateBanner = async (req, res) => {
         }
         
         if (req.file) {
-            if (banner.image_url && banner.image_url.startsWith('/uploads/')) {
-                const oldImagePath = path.join(__dirname, '..', banner.image_url);
-                try {
-                    await fs.unlink(oldImagePath);
-                } catch (err) {
-                    console.error('Error deleting old image:', err);
-                }
-            }
-            updateData.image_url = `/uploads/banners/${req.file.filename}`;
+            updateData.image_url = req.file.path;
         } else if (req.body.image_url) {
             updateData.image_url = req.body.image_url;
         }
@@ -116,15 +108,6 @@ const deleteBanner = async (req, res) => {
         
         if (!banner) {
             return res.status(404).json({ message: 'Không tìm thấy banner' });
-        }
-        
-        if (banner.image_url) {
-            const imagePath = path.join(__dirname, '..', banner.image_url);
-            try {
-                await fs.unlink(imagePath);
-            } catch (err) {
-                console.error('Error deleting image:', err);
-            }
         }
         
         await banner.destroy();
