@@ -20,7 +20,7 @@ export default function AdminBanners() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [editData, setEditData] = useState(null);
-  const [form, setForm] = useState({ title: '', link: '', is_active: true, position: 'main_top', faculty_id: '' });
+  const [form, setForm] = useState({ title: '', link_url: '', is_active: true, position: 'main_top', faculty_id: '' });
   const [file, setFile] = useState(null);
   const [imageUrlInput, setImageUrlInput] = useState('');
   const [preview, setPreview] = useState(null);
@@ -75,7 +75,7 @@ export default function AdminBanners() {
       setSaving(true);
       const formData = new FormData();
       formData.append('title', form.title);
-      formData.append('link', form.link);
+      formData.append('link_url', form.link_url);
       formData.append('is_active', form.is_active);
       formData.append('position', form.position);
       if (form.faculty_id) {
@@ -84,7 +84,7 @@ export default function AdminBanners() {
         formData.append('faculty_id', 'null');
       }
       if (file) {
-        formData.append('image', file);
+        formData.append('image_url', file);
       } else if (imageUrlInput) {
         formData.append('image_url', imageUrlInput);
       }
@@ -108,7 +108,7 @@ export default function AdminBanners() {
 
   const startEdit = (b) => {
     setEditData(b);
-    setForm({ title: b.title, link: b.link || '', is_active: b.is_active, position: b.position || 'main_top', faculty_id: b.faculty_id || '' });
+    setForm({ title: b.title, link_url: b.link_url || '', is_active: b.is_active, position: b.position || 'main_top', faculty_id: b.faculty_id || '' });
     setPreview(b.image_url);
     if (b.image_url && (b.image_url.startsWith('http') || b.image_url.startsWith('data:'))) {
       setImageUrlInput(b.image_url);
@@ -179,7 +179,7 @@ export default function AdminBanners() {
           </div>
         </div>
         <button
-          onClick={() => { setEditData(null); setForm({ title: '', link: '', is_active: true, position: 'main_top', faculty_id: '' }); setPreview(null); setFile(null); setImageUrlInput(''); setEditing(true); }}
+          onClick={() => { setEditData(null); setForm({ title: '', link_url: '', is_active: true, position: 'main_top', faculty_id: '' }); setPreview(null); setFile(null); setImageUrlInput(''); setEditing(true); }}
           className="bg-primary text-white text-xs font-black px-6 py-3 flex items-center gap-2 hover:bg-primary/90 rounded-xl transition-all uppercase tracking-widest shadow-sm"
         >
           <Plus className="w-4 h-4" /> Thêm banner mới
