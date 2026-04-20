@@ -195,8 +195,12 @@ const unpublishPost = async (req, res) => {
 
 const getPostBySlug = async (req, res) => {
     try {
+        const searchCondition = isNaN(req.params.slug) || req.params.slug === 'null' 
+            ? { slug: req.params.slug } 
+            : { [Op.or]: [{ slug: req.params.slug }, { id: req.params.slug }] };
+
         const post = await Post.findOne({
-            where: { slug: req.params.slug },
+            where: searchCondition,
             include: [
                 { model: Category },
                 { model: User, attributes: ['id', 'email'] }

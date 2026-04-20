@@ -86,7 +86,7 @@ export default function NewsListPage() {
           <>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {posts.map((post) => (
-                <Link key={post.id} to={`/tin-tuc/${post.slug}`} className="group bg-white border border-slate-100 hover:border-primary transition-all rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-100 flex flex-col">
+                <Link key={post.id} to={`/tin-tuc/${post.slug || post.id}`} className="group bg-white border border-slate-100 hover:border-primary transition-all rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-100 flex flex-col">
                   {/* Image */}
                   {post.image_url ? (
                     <div className="h-52 overflow-hidden bg-slate-100 relative">
