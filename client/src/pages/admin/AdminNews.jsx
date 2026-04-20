@@ -37,7 +37,7 @@ export default function AdminNews() {
   const [selectedIds, setSelectedIds] = useState([]);
 
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ title: '', excerpt: '', content: '', status: 'draft', category_id: '', image_url: '' });
+  const [form, setForm] = useState({ title: '', content: '', status: 'draft', category_id: '', image_url: '' });
   const [imageFile, setImageFile] = useState(null);
   const [imageSource, setImageSource] = useState('file'); // 'file' | 'url'
   const [previewUrl, setPreviewUrl] = useState('');
@@ -120,14 +120,12 @@ export default function AdminNews() {
     setEditing(post?.id || 'new');
     setForm(post ? {
       title: post.title,
-      excerpt: post.excerpt || '',
       content: post.content || '',
       status: post.status,
       category_id: post.category_id || '',
       image_url: post.image_url || ''
     } : {
       title: '',
-      excerpt: '',
       content: '',
       status: 'draft',
       category_id: '',
@@ -144,7 +142,6 @@ export default function AdminNews() {
       setSaving(true);
       const formData = new FormData();
       formData.append('title', form.title);
-      formData.append('excerpt', form.excerpt);
       formData.append('content', form.content);
       formData.append('status', form.status);
       if (form.category_id) formData.append('category_id', form.category_id);
@@ -238,10 +235,6 @@ export default function AdminNews() {
               <div>
                 <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">Tiêu đề bài viết *</label>
                 <input required value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className={inputCls} placeholder="Nhập tiêu đề hấp dẫn..." />
-              </div>
-              <div>
-                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">Tóm tắt ngắn gọn</label>
-                <textarea rows={3} value={form.excerpt} onChange={e => setForm({ ...form, excerpt: e.target.value })} className={`${inputCls} resize-none`} placeholder="Mô tả ngắn về nội dung bài viết..." />
               </div>
               <div>
                 <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">Nội dung chi tiết</label>
@@ -449,7 +442,6 @@ export default function AdminNews() {
                             </div>
                             <div className="min-w-0">
                               <p className="font-bold text-slate-900 group-hover:text-primary transition-colors truncate max-w-xs">{p.title}</p>
-                              <p className="text-[10px] text-slate-400 truncate max-w-xs">{p.excerpt || 'Không có mô tả nội dung...'}</p>
                             </div>
                           </div>
                         </td>
