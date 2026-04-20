@@ -14,6 +14,12 @@ api.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+        
+        // Nếu là FormData, hãy để trình duyệt tự thiết lập Content-Type (bao gồm cả boundary)
+        if (config.data instanceof FormData) {
+            delete config.headers['Content-Type'];
+        }
+        
         return config;
     },
     (error) => {

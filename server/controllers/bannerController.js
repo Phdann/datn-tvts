@@ -60,12 +60,25 @@ const createBanner = async (req, res) => {
         }
         
         const bannerData = {
-            ...req.body,
+            title: req.body.title,
+            link_url: req.body.link_url,
+            position: req.body.position || 'main_top',
             image_url
         };
 
-        if (bannerData.faculty_id === 'null' || bannerData.faculty_id === '') {
+        // Ép kiểu dữ liệu an toàn
+        if (req.body.is_active !== undefined) {
+            bannerData.is_active = String(req.body.is_active) === 'true';
+        }
+
+        if (req.body.faculty_id && req.body.faculty_id !== 'null' && req.body.faculty_id !== '') {
+            bannerData.faculty_id = parseInt(req.body.faculty_id);
+        } else {
             bannerData.faculty_id = null;
+        }
+
+        if (req.body.display_order) {
+            bannerData.display_order = parseInt(req.body.display_order);
         }
         
         const banner = await Banner.create(bannerData);
@@ -83,10 +96,24 @@ const updateBanner = async (req, res) => {
             return res.status(404).json({ message: 'Không tìm thấy banner' });
         }
         
-        const updateData = { ...req.body };
+        const updateData = {};
+        
+        // Chỉ cập nhật các trường được gửi lên
+        if (req.body.title !== undefined) updateData.title = req.body.title;
+        if (req.body.link_url !== undefined) updateData.link_url = req.body.link_url;
+        if (req.body.position !== undefined) updateData.position = req.body.position;
+        if (req.body.display_order !== undefined) updateData.display_order = parseInt(req.body.display_order);
+        
+        if (req.body.is_active !== undefined) {
+            updateData.is_active = String(req.body.is_active) === 'true';
+        }
 
-        if (updateData.faculty_id === 'null' || updateData.faculty_id === '') {
-            updateData.faculty_id = null;
+        if (req.body.faculty_id !== undefined) {
+            if (req.body.faculty_id === 'null' || req.body.faculty_id === '') {
+                updateData.faculty_id = null;
+            } else {
+                updateData.faculty_id = parseInt(req.body.faculty_id);
+            }
         }
         
         if (req.file) {
