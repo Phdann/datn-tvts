@@ -1,4 +1,4 @@
-const { AdmissionMethod, HistoricalScore, Application } = require('../models/index');
+const { AdmissionMethod, HistoricalScore } = require('../models/index');
 const { Op } = require('sequelize');
 
 const getAllAdmissionMethods = async (req, res) => {
@@ -31,8 +31,7 @@ const getAdmissionMethodById = async (req, res) => {
     try {
         const method = await AdmissionMethod.findByPk(req.params.id, {
             include: [
-                { model: HistoricalScore },
-                { model: Application }
+                { model: HistoricalScore }
             ]
         });
         
@@ -151,11 +150,10 @@ const deleteAdmissionMethod = async (req, res) => {
         const method = await AdmissionMethod.findByPk(req.params.id);
         if (!method) return res.status(404).json({ message: 'Admission method not found' });
 
-        const applicationCount = await Application.count({ where: { admission_method_id: method.id } });
         const scoreCount = await HistoricalScore.count({ where: { method_id: method.id } });
         
-        if (applicationCount > 0 || scoreCount > 0) {
-            return res.status(400).json({ message: 'Cannot delete admission method that is in use' });
+        if (scoreCount > 0) {
+            return res.status(400).json({ message: 'Cannot delete admission method that is in use (has historical scores)' });
         }
 
         await method.destroy();
