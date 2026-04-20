@@ -262,6 +262,15 @@ export default function AdminBanners() {
                     </select>
                   </div>
                   <div>
+                    <label className="block text-[10px] font-black text-slate-500 mb-1.5 uppercase tracking-widest">Đường dẫn liên kết (URL)</label>
+                    <input 
+                      type="text" value={form.link_url} 
+                      onChange={e => setForm({...form, link_url: e.target.value})}
+                      placeholder="https://example.com/..."
+                      className="w-full border border-slate-200 px-4 py-3 outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 rounded-xl text-sm transition-all shadow-sm"
+                    />
+                  </div>
+                  <div>
                     <label className="block text-[10px] font-black text-slate-500 mb-1.5 uppercase tracking-widest">Chọn Khoa (Trang chủ nểu để trống)</label>
                     <select
                       value={form.faculty_id}
