@@ -29,7 +29,8 @@ ${baseInstruction}
 - Giọng văn thoải mái nhưng vẫn chuyên nghiệp, không sáo rỗng.
 
 **NHIỆM VỤ:**
-- Trả lời dựa trên "CONTEXT DỮ LIỆU" được cung cấp bên dưới.
+- Trả lời thông tin một cách tự nhiên, CẤM sử dụng các từ kỹ thuật như "database", "dữ liệu", "hệ thống", "context", "RAG" hay "knowledge base" trong câu trả lời.
+- Tuyệt đối không nói những câu như "Theo dữ liệu trong hệ thống..." hay "Database cho biết...". Hãy trả lời thẳng vấn đề như một chuyên viên đang nắm rõ thông tin.
 - Nếu thông tin không có trong Context, hãy nói khéo là chưa tìm thấy và gợi ý liên hệ hotline nhà trường, ĐỪNG BỊA ĐẶT.
 - Tư vấn về đời sống sinh viên, review ngành học, cơ hội việc làm.
 `,
@@ -78,7 +79,7 @@ ${baseInstruction}
             const allFaculties = await Faculty.findAll({ attributes: ['id', 'name'] });
             const totalMajorsCount = await Major.count();
             
-            context.text += `\n=== THÔNG TIN CƠ CẤU TRƯỜNG (DATABASE) ===\n`;
+            context.text += `\n=== THÔNG TIN CHÍNH THỨC VỀ TRƯỜNG ===\n`;
             context.text += `- Tổng số Khoa: ${allFaculties.length}\n`;
             context.text += `- Tổng số Ngành đào tạo: ${totalMajorsCount}\n`;
 
@@ -100,7 +101,7 @@ ${baseInstruction}
 
             if (foundMajors.length > 0) {
                 context.majors = foundMajors; 
-                context.text += '\n=== CHI TIẾT NGÀNH HỌC ĐƯỢC NHẮC ĐẾN (DATABASE) ===\n';
+                context.text += '\n=== CHI TIẾT VỀ NGÀNH HỌC ===\n';
                 foundMajors.forEach(major => {
                     context.text += `
 📌 Ngành: ${major.name} (Mã: ${major.code})
@@ -128,7 +129,7 @@ ${baseInstruction}
                 });
                 
                 if (ragResponse.data.context && ragResponse.data.context.length > 0) {
-                    context.text += `\n=== KIẾN THỨC TỪ TÀI LIỆU TUYỂN SINH (KNOWLEDGE BASE) ===\n`;
+                    context.text += `\n=== THÔNG TIN BỔ SUNG TỪ TÀI LIỆU ===\n`;
                     ragResponse.data.context.forEach((item, index) => {
                         context.text += `[Tài liệu ${index + 1} - Nguồn: ${item.source}]: ${item.content}\n---\n`;
                     });
@@ -199,8 +200,9 @@ ${historyText}
 **CÂU HỎI MỚI CỦA NGƯỜI DÙNG:**
 "${message}"
 
-Hãy trả lời câu hỏi trên. Ưu tiên sử dụng thông tin trong phần "THÔNG TIN TRA CỨU" và "DATABASE".
-Nếu có thông tin về ngành học cụ thể trong Database, hãy nhắc người dùng xem thẻ thông tin bên dưới.
+Hãy trả lời câu hỏi trên một cách tự nhiên nhất. Ưu tiên sử dụng các thông tin chính thức đã được cung cấp ở trên.
+Tuyệt đối KHÔNG nhắc đến các từ như "database", "dữ liệu", "hệ thống" hay "theo như tôi tra cứu".
+Nếu có thông tin chi tiết về ngành học, hãy khéo léo nhắc người dùng có thể xem thêm ở thẻ thông tin xuất hiện bên dưới.
 `;
 
                 const result = await model.generateContent(finalPrompt);
