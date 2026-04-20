@@ -58,8 +58,23 @@ app.use('/api/admin', require('./routes/adminRoutes'));
 // Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
-app.get('/', (req, res) => {
-    res.json({ message: 'Welcome to admission server' });
+app.get('/', async (req, res) => {
+    try {
+        // Thực hiện một truy vấn nhỏ để giữ cho Database Aiven luôn thức
+        await db.sequelize.query('SELECT 1');
+        res.json({ 
+            status: 'success',
+            message: 'Welcome to admission server',
+            database: 'Connected & Active'
+        });
+    } catch (err) {
+        console.error('Ping error:', err.message);
+        res.status(500).json({ 
+            status: 'error', 
+            message: 'Welcome to admission server',
+            database: 'Connection failed' 
+        });
+    }
 });
 
 if (process.env.NODE_ENV !== 'test') {
