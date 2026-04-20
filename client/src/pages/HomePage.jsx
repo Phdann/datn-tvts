@@ -376,7 +376,7 @@ function LatestNewsSection() {
           {posts.map((post) => (
             <Link
               key={post.id}
-              to={`/tin-tuc/${post.slug}`}
+              to={`/tin-tuc/${post.slug || post.id}`}
               className="group bg-white border border-slate-100 hover:border-primary transition-colors"
             >
               {post.image_url ? (
