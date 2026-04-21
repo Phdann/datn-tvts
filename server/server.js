@@ -72,7 +72,8 @@ app.get('/', async (req, res) => {
         res.status(500).json({ 
             status: 'error', 
             message: 'Welcome to admission server',
-            database: 'Connection failed' 
+            database: 'Connection failed',
+            error: err.message
         });
     }
 });
