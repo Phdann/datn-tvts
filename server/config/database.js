@@ -26,7 +26,15 @@ module.exports = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 3306,
     dialect: process.env.DB_DIALECT || 'mysql',
-    logging: false,
+    dialectOptions: {
+      connectTimeout: 60000 // Tăng thời gian chờ kết nối lên 60 giây
+    },
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 60000,
+      idle: 10000
+    }
     // dialectOptions: {
     //   ssl: {
     //     rejectUnauthorized: false
