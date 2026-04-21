@@ -77,22 +77,22 @@ app.get('/', async (req, res) => {
     }
 });
 
-if (process.env.NODE_ENV !== 'test') {
-    
-    
+// Khởi động server ngay lập tức để tránh bị platform kill vì không bind port kịp thời
+startServer();
+
+if (process.env.NODE_ENV !== 'test') {    
     const shouldSync = process.env.SYNC_DB === 'true';
     
     if (shouldSync) {
-        console.log('Database sync enabled...');
+        console.log('Database sync enabled, starting in background...');
         db.sequelize.sync({ alter: true }).then(() => {
             console.log("Database Synced Successfully!");
-            startServer();
         }).catch((err) => {
             console.error("Failed to sync database:", err.message);
+            // Không thoát process ở đây để server vẫn có thể phản hồi lỗi qua API
         });
     } else {
         console.log('Database sync disabled (use SYNC_DB=true to enable)');
-        startServer();
     }
 }
 
@@ -103,3 +103,13 @@ function startServer() {
 }
 
 module.exports = app;
+
+// Global error handlers to catch silent crashes
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception thrown:', err);
+    // Optional: process.exit(1) if you want to force restart
+});
