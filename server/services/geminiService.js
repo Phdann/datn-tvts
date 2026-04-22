@@ -61,25 +61,24 @@ ${baseInstruction}
         };
 
         try {
-            const messageLower = message.toLowerCase();
-            
-            // Chạy song song các tác vụ lấy dữ liệu để tối ưu tốc độ
-            const [allMajors, allFaculties, totalMajorsCount] = await Promise.all([
-                Major.findAll({
-                    include: [
-                        { model: Faculty, attributes: ['name'] },
-                        { 
-                            model: HistoricalScore, 
-                            limit: 3,
-                            order: [['year', 'DESC']],
-                            include: [{ model: AdmissionMethod, attributes: ['name'] }]
-                        }
-                    ]
-                }),
-                Faculty.findAll({ attributes: ['id', 'name'] }),
-                Major.count()
-            ]);
+            const allMajors = await Major.findAll({
+                include: [
+                    { model: Faculty, attributes: ['name'] },
+                    { 
+                        model: HistoricalScore, 
+                        limit: 3,
+                        order: [['year', 'DESC']],
+                        include: [{ model: AdmissionMethod, attributes: ['name'] }]
+                    }
+                ]
+            });
 
+            const messageLower = message.toLowerCase();
+
+            // 1. SCHOOL STRUCTURE & STATISTICS (Luôn cung cấp cơ bản hoặc cung cấp chi tiết khi được hỏi)
+            const allFaculties = await Faculty.findAll({ attributes: ['id', 'name'] });
+            const totalMajorsCount = await Major.count();
+            
             context.text += `\n=== THÔNG TIN CHÍNH THỨC VỀ TRƯỜNG ===\n`;
             context.text += `- Tổng số Khoa: ${allFaculties.length}\n`;
             context.text += `- Tổng số Ngành đào tạo: ${totalMajorsCount}\n`;
@@ -93,6 +92,7 @@ ${baseInstruction}
                 context.text += `- Một số Ngành đào tạo tiêu biểu: ${majorNames}${allMajors.length > 15 ? '... và nhiều ngành khác' : ''}\n`;
             }
 
+            // 2. DETAILED MAJOR LOOKUP (Nếu nhắc tên ngành cụ thể)
             const foundMajors = allMajors.filter(m => {
                 const nameMatch = m.name && messageLower.includes(m.name.toLowerCase());
                 const codeMatch = m.code && messageLower.includes(m.code.toLowerCase());
@@ -103,18 +103,30 @@ ${baseInstruction}
                 context.majors = foundMajors; 
                 context.text += '\n=== CHI TIẾT VỀ NGÀNH HỌC ===\n';
                 foundMajors.forEach(major => {
-                    context.text += `\n📌 Ngành: ${major.name} (Mã: ${major.code})\n - Thuộc khoa: ${major.Faculty?.name || 'N/A'}\n - Học phí: ${new Intl.NumberFormat('vi-VN').format(major.tuition)} VNĐ/năm\n - Chỉ tiêu: ${major.quota} sinh viên\n`;
+                    context.text += `
+📌 Ngành: ${major.name} (Mã: ${major.code})
+   - Thuộc khoa: ${major.Faculty?.name || 'N/A'}
+   - Học phí: ${new Intl.NumberFormat('vi-VN').format(major.tuition)} VNĐ/năm
+   - Chỉ tiêu: ${major.quota} sinh viên
+   - Mô tả: ${major.description ? major.description : 'Đang cập nhật'}
+`;
                     if (major.HistoricalScores?.length > 0) {
-                        context.text += ` - Điểm chuẩn gần nhất: ${major.HistoricalScores.map(s => `${s.year}: ${s.score}đ`).join('; ')}\n`;
+                        context.text += `   - Điểm chuẩn năm gần nhất: `;
+                        major.HistoricalScores.forEach(s => {
+                            context.text += `${s.year}: ${s.score}đ; `;
+                        });
+                        context.text += '\n';
                     }
+                    context.text += '----------------\n';
                 });
             }
 
-            // CHẠY SONG SONG TÌM KIẾM SQL VÀ PYTHON RAG
-            const { Post, ChatKnowledgeBase } = require('../models/index');
-            const searchPromises = [
-                // 1. Tìm trong Kho tri thức (SQL)
-                ChatKnowledgeBase.findAll({
+            // 3. SQL FALLBACK SEARCH (Tìm trong bảng Posts và ChatKnowledgeBase nếu Python Service lỗi)
+            try {
+                const { Post, ChatKnowledgeBase } = require('../models/index');
+                
+                // Tìm trong Kho tri thức (Ưu tiên)
+                const knowledgeMatches = await ChatKnowledgeBase.findAll({
                     where: {
                         status: 'active',
                         [Op.or]: [
@@ -124,9 +136,10 @@ ${baseInstruction}
                         ]
                     },
                     limit: 3
-                }),
-                // 2. Tìm trong Tin tức (SQL)
-                Post.findAll({
+                });
+
+                // Tìm trong Tin tức
+                const blogMatches = await Post.findAll({
                     where: {
                         status: 'published',
                         [Op.or]: [
@@ -135,31 +148,36 @@ ${baseInstruction}
                         ]
                     },
                     limit: 2
-                }),
-                // 3. Tìm trên Hugging Face (Python RAG)
-                axios.post(`${PYTHON_SERVICE_URL}/search`, {
-                    question: message,
-                    n_results: 3
-                }).catch(() => null) 
-            ];
-
-            const [knowledgeMatches, blogMatches, ragResponse] = await Promise.all(searchPromises);
-
-            if (knowledgeMatches?.length > 0 || blogMatches?.length > 0) {
-                context.text += `\n=== THÔNG TIN TỪ CƠ SỞ DỮ LIỆU ===\n`;
-                knowledgeMatches?.forEach(k => {
-                    context.text += `[Tri thức: ${k.title}]: ${k.content}\n---\n`;
                 });
-                blogMatches?.forEach(b => {
-                    context.text += `[Tin tức: ${b.title}]: ${b.content}\n---\n`;
-                });
+
+                if (knowledgeMatches.length > 0 || blogMatches.length > 0) {
+                    context.text += `\n=== THÔNG TIN TỪ CƠ SỞ DỮ LIỆU ===\n`;
+                    knowledgeMatches.forEach(k => {
+                        context.text += `[Tri thức: ${k.title}]: ${k.content}\n---\n`;
+                    });
+                    blogMatches.forEach(b => {
+                        context.text += `[Tin tức: ${b.title}]: ${b.content}\n---\n`;
+                    });
+                }
+            } catch (err) {
+                console.error("Error in SQL Fallback search:", err);
             }
 
-            if (ragResponse?.data?.context?.length > 0) {
-                context.text += `\n=== THÔNG TIN BỔ SUNG TỪ TÀI LIỆU (VECTOR) ===\n`;
-                ragResponse.data.context.forEach((item, index) => {
-                    context.text += `[Tài liệu ${index + 1} - Nguồn: ${item.source}]: ${item.content}\n---\n`;
+            // 4. PYTHON RAG SEARCH (ChromaDB - Tài liệu phi cấu trúc trên Hugging Face)
+            try {
+                const ragResponse = await axios.post(`${PYTHON_SERVICE_URL}/search`, {
+                    question: message,
+                    n_results: 3
                 });
+                
+                if (ragResponse.data.context && ragResponse.data.context.length > 0) {
+                    context.text += `\n=== THÔNG TIN BỔ SUNG TỪ TÀI LIỆU (VECTOR) ===\n`;
+                    ragResponse.data.context.forEach((item, index) => {
+                        context.text += `[Tài liệu ${index + 1} - Nguồn: ${item.source}]: ${item.content}\n---\n`;
+                    });
+                }
+            } catch (err) {
+                // Không log lỗi quá nhiều nếu dịch vụ Python tạm thời không sẵn sàng
             }
 
             // 4. HISTORICAL SCORES DATA (Cho biểu đồ hoặc so sánh)
