@@ -209,32 +209,35 @@ ${baseInstruction}
 
   
     async generateResponse(message, persona = 'student', sessionHistory = [], userInfo = null) {
+        const models = ['gemini-3-flash-preview', 'gemini-2.5-flash'];
         let lastError = null;
-        const maxRetries = 3;
-        const initialDelay = 1000; // 1 second
 
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-                const apiKey = keyManager.getNextKey();
-                if (!apiKey) throw new Error('No Gemini API key available');
+        for (const modelName of models) {
+            console.log(`--- Trying model: ${modelName} ---`);
+            const maxRetries = (modelName === models[0]) ? 2 : 1; // Thử model chính nhiều lần hơn
 
-                const genAI = new GoogleGenerativeAI(apiKey);
-                const model = genAI.getGenerativeModel({ 
-                    model: 'gemini-3-flash-preview', 
-                    systemInstruction: this.buildSystemInstruction(persona, userInfo)
-                });
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    const apiKey = keyManager.getNextKey();
+                    if (!apiKey) throw new Error('No Gemini API key available');
 
-                const context = await this.getSmartContext(message);
-
-                let historyText = '';
-                if (sessionHistory.length > 0) {
-                    historyText = '\n**LỊCH SỬ HỘI THOẠI TRƯỚC ĐÓ:**\n';
-                    sessionHistory.slice(-5).forEach(msg => {
-                        historyText += `${msg.role === 'user' ? 'User' : 'AI'}: ${msg.content}\n`;
+                    const genAI = new GoogleGenerativeAI(apiKey);
+                    const model = genAI.getGenerativeModel({ 
+                        model: modelName, 
+                        systemInstruction: this.buildSystemInstruction(persona, userInfo)
                     });
-                }
 
-                const finalPrompt = `
+                    const context = await this.getSmartContext(message);
+
+                    let historyText = '';
+                    if (sessionHistory.length > 0) {
+                        historyText = '\n**LỊCH SỬ HỘI THOẠI TRƯỚC ĐÓ:**\n';
+                        sessionHistory.slice(-5).forEach(msg => {
+                            historyText += `${msg.role === 'user' ? 'User' : 'AI'}: ${msg.content}\n`;
+                        });
+                    }
+
+                    const finalPrompt = `
 ${context.text}
 
 ${historyText}
@@ -247,61 +250,60 @@ Tuyệt đối KHÔNG nhắc đến các từ như "database", "dữ liệu", "h
 Nếu có thông tin chi tiết về ngành học, hãy khéo léo nhắc người dùng có thể xem thêm ở thẻ thông tin xuất hiện bên dưới.
 `;
 
-                const result = await model.generateContent(finalPrompt);
-                const reply = result.response.text();
+                    const result = await model.generateContent(finalPrompt);
+                    const reply = result.response.text();
 
-                const response = {
-                    reply: reply,
-                    sessionId: null, 
-                    related_data: null
-                };
-
-                if (context.majors.length > 0) {
-                    const topMajor = context.majors[0];
-                    response.related_data = {
-                        type: 'major_card',
-                        data: {
-                            id: topMajor.id,
-                            name: topMajor.name,
-                            code: topMajor.code,
-                            tuition: topMajor.tuition,
-                            quota: topMajor.quota,
-                            faculty: topMajor.Faculty?.name
-                        }
+                    const response = {
+                        reply: reply,
+                        sessionId: null, 
+                        related_data: null
                     };
+
+                    if (context.majors.length > 0) {
+                        const topMajor = context.majors[0];
+                        response.related_data = {
+                            type: 'major_card',
+                            data: {
+                                id: topMajor.id,
+                                name: topMajor.name,
+                                code: topMajor.code,
+                                tuition: topMajor.tuition,
+                                quota: topMajor.quota,
+                                faculty: topMajor.Faculty?.name
+                            }
+                        };
+                    }
+
+                    if (context.scores.length > 0 && message.match(/biểu đồ|chart|xu hướng|so sánh/i)) {
+                        response.related_data = {
+                            type: 'chart',
+                            data: {
+                                title: 'Điểm chuẩn các năm gần đây',
+                                scores: context.scores.map(s => ({
+                                    year: s.year,
+                                    score: s.threshold_score || s.score,
+                                    major: s.Major?.name,
+                                    method: s.AdmissionMethod?.name
+                                }))
+                            }
+                        };
+                    }
+
+                    return response;
+
+                } catch (error) {
+                    lastError = error;
+                    const isOverloaded = error.message.includes('503') || error.message.includes('429') || error.message.includes('demand');
+                    
+                    console.error(`${modelName} error (Attempt ${attempt}/${maxRetries}):`, error.message);
+
+                    if (isOverloaded && attempt < maxRetries) {
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        continue;
+                    }
+                    // Nếu lỗi nặng hoặc đã hết lượt thử của model này, chuyển sang model tiếp theo
+                    break; 
                 }
-
-                if (context.scores.length > 0 && message.match(/biểu đồ|chart|xu hướng|so sánh/i)) {
-                    response.related_data = {
-                        type: 'chart',
-                        data: {
-                            title: 'Điểm chuẩn các năm gần đây',
-                            scores: context.scores.map(s => ({
-                                year: s.year,
-                                score: s.threshold_score,
-                                major: s.Major?.name,
-                                method: s.AdmissionMethod?.name
-                            }))
-                        }
-                    };
-                }
-
-                return response;
-
-            } catch (error) {
-                lastError = error;
-                console.error(`Gemini generation error (Attempt ${attempt}/${maxRetries}):`, error.message);
-
-                // If it's a 503 error (Service Unavailable), wait and retry
-                if (error.status === 503 && attempt < maxRetries) {
-                    const delay = initialDelay * Math.pow(2, attempt - 1);
-                    console.log(`Model busy, retrying in ${delay}ms...`);
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    continue;
-                }
-
-                // For other errors or if we've exhausted retries, break and return the error response
-                break;
             }
         }
 
