@@ -121,7 +121,31 @@ ${baseInstruction}
                 });
             }
 
-            // 3. PYTHON RAG SEARCH (ChromaDB - Tài liệu phi cấu trúc)
+            // 3. SQL FALLBACK SEARCH (Tìm trong bảng Posts nếu Python Service lỗi hoặc không có kết quả)
+            try {
+                const { Post } = require('../models/index');
+                const matchingPosts = await Post.findAll({
+                    where: {
+                        status: 'published',
+                        [Op.or]: [
+                            { title: { [Op.like]: `%${message}%` } },
+                            { content: { [Op.like]: `%${message}%` } }
+                        ]
+                    },
+                    limit: 3
+                });
+
+                if (matchingPosts.length > 0) {
+                    context.text += `\n=== THÔNG TIN TỪ CƠ SỞ DỮ LIỆU ===\n`;
+                    matchingPosts.forEach(post => {
+                        context.text += `[Tiêu đề: ${post.title}]: ${post.content}\n---\n`;
+                    });
+                }
+            } catch (err) {
+                console.error("Error in SQL Fallback search:", err);
+            }
+
+            // 4. PYTHON RAG SEARCH (ChromaDB - Tài liệu phi cấu trúc)
             try {
                 const ragResponse = await axios.post(`${PYTHON_SERVICE_URL}/search`, {
                     question: message,
@@ -129,13 +153,13 @@ ${baseInstruction}
                 });
                 
                 if (ragResponse.data.context && ragResponse.data.context.length > 0) {
-                    context.text += `\n=== THÔNG TIN BỔ SUNG TỪ TÀI LIỆU ===\n`;
+                    context.text += `\n=== THÔNG TIN BỔ SUNG TỪ TÀI LIỆU (VECTOR) ===\n`;
                     ragResponse.data.context.forEach((item, index) => {
                         context.text += `[Tài liệu ${index + 1} - Nguồn: ${item.source}]: ${item.content}\n---\n`;
                     });
                 }
             } catch (err) {
-                console.warn(" Warning: Không thể kết nối tới Python Vector Service.");
+                // Không log lỗi quá nhiều nếu đã biết Python service đang offline
             }
 
             // 4. HISTORICAL SCORES DATA (Cho biểu đồ hoặc so sánh)
