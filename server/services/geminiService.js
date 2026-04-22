@@ -121,10 +121,25 @@ ${baseInstruction}
                 });
             }
 
-            // 3. SQL FALLBACK SEARCH (Tìm trong bảng Posts nếu Python Service lỗi hoặc không có kết quả)
+            // 3. SQL FALLBACK SEARCH (Tìm trong bảng Posts và ChatKnowledgeBase nếu Python Service lỗi)
             try {
-                const { Post } = require('../models/index');
-                const matchingPosts = await Post.findAll({
+                const { Post, ChatKnowledgeBase } = require('../models/index');
+                
+                // Tìm trong Kho tri thức (Ưu tiên)
+                const knowledgeMatches = await ChatKnowledgeBase.findAll({
+                    where: {
+                        status: 'active',
+                        [Op.or]: [
+                            { title: { [Op.like]: `%${message}%` } },
+                            { content: { [Op.like]: `%${message}%` } },
+                            { keywords: { [Op.like]: `%${message}%` } }
+                        ]
+                    },
+                    limit: 3
+                });
+
+                // Tìm trong Tin tức
+                const blogMatches = await Post.findAll({
                     where: {
                         status: 'published',
                         [Op.or]: [
@@ -132,20 +147,23 @@ ${baseInstruction}
                             { content: { [Op.like]: `%${message}%` } }
                         ]
                     },
-                    limit: 3
+                    limit: 2
                 });
 
-                if (matchingPosts.length > 0) {
+                if (knowledgeMatches.length > 0 || blogMatches.length > 0) {
                     context.text += `\n=== THÔNG TIN TỪ CƠ SỞ DỮ LIỆU ===\n`;
-                    matchingPosts.forEach(post => {
-                        context.text += `[Tiêu đề: ${post.title}]: ${post.content}\n---\n`;
+                    knowledgeMatches.forEach(k => {
+                        context.text += `[Tri thức: ${k.title}]: ${k.content}\n---\n`;
+                    });
+                    blogMatches.forEach(b => {
+                        context.text += `[Tin tức: ${b.title}]: ${b.content}\n---\n`;
                     });
                 }
             } catch (err) {
                 console.error("Error in SQL Fallback search:", err);
             }
 
-            // 4. PYTHON RAG SEARCH (ChromaDB - Tài liệu phi cấu trúc)
+            // 4. PYTHON RAG SEARCH (ChromaDB - Tài liệu phi cấu trúc trên Hugging Face)
             try {
                 const ragResponse = await axios.post(`${PYTHON_SERVICE_URL}/search`, {
                     question: message,
@@ -159,7 +177,7 @@ ${baseInstruction}
                     });
                 }
             } catch (err) {
-                // Không log lỗi quá nhiều nếu đã biết Python service đang offline
+                // Không log lỗi quá nhiều nếu dịch vụ Python tạm thời không sẵn sàng
             }
 
             // 4. HISTORICAL SCORES DATA (Cho biểu đồ hoặc so sánh)
