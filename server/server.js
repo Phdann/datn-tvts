@@ -98,9 +98,14 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 function startServer() {
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
+    const port = process.env.PORT || 5000;
+    const serverInstance = app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+        console.log(`==> Your service is live 🎉`);
     });
+
+    // Tăng timeout lên 2 phút để đợi AI tạo bài viết dài
+    serverInstance.timeout = 120000;
 }
 
 module.exports = app;
