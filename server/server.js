@@ -86,7 +86,7 @@ if (process.env.NODE_ENV !== 'test') {
     
     if (shouldSync) {
         console.log('Database sync enabled, starting in background...');
-        db.sequelize.sync({ alter: true }).then(() => {
+        db.sequelize.sync().then(() => {
             console.log("Database Synced Successfully!");
         }).catch((err) => {
             console.error("Failed to sync database:", err.message);
