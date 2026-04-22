@@ -27,13 +27,15 @@ module.exports = {
     port: process.env.DB_PORT || 3306,
     dialect: process.env.DB_DIALECT || 'mysql',
     dialectOptions: {
-      connectTimeout: 60000 // Tăng thời gian chờ kết nối lên 60 giây
+      connectTimeout: 60000,
+      family: 4 // Cưỡng ép sử dụng IPv4 để tránh lỗi track IPv6
     },
     pool: {
-      max: 5,
-      min: 0,
+      max: 10,
+      min: 2,
       acquire: 60000,
-      idle: 10000
+      idle: 10000,
+      evict: 10000
     }
     // dialectOptions: {
     //   ssl: {
