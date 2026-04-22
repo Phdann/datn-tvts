@@ -27,8 +27,7 @@ module.exports = {
     port: process.env.DB_PORT || 3306,
     dialect: process.env.DB_DIALECT || 'mysql',
     dialectOptions: {
-      connectTimeout: 60000,
-      family: 4 // Cưỡng ép sử dụng IPv4 để tránh lỗi track IPv6
+      connectTimeout: 60000
     },
     pool: {
       max: 10,
