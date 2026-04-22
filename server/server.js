@@ -60,7 +60,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 app.get('/', async (req, res) => {
     try {
-        // Thực hiện một truy vấn nhỏ để giữ cho Database Aiven luôn thức
+        // Thực hiện một truy vấn nhỏ để kiểm tra tình trạng kết nối Database
         await db.sequelize.query('SELECT 1');
         res.json({ 
             status: 'success',
