@@ -54,21 +54,24 @@ const sendMessage = async (req, res) => {
 
         const response = {
             sessionId: session.id,
-            reply: aiResponse.reply
+            reply: aiResponse.reply || 'Máy chủ bận, vui lòng thử lại sau.'
         };
 
         if (aiResponse.related_data?.type === 'major_card') {
-            response.majorCard = aiResponse.related_data.data;
+            response.majorCard = JSON.parse(JSON.stringify(aiResponse.related_data.data));
         }
 
         if (aiResponse.related_data?.type === 'chart') {
-            response.chart = aiResponse.related_data.data;
+            response.chart = JSON.parse(JSON.stringify(aiResponse.related_data.data));
         }
 
-        res.json(response);
+        return res.status(200).json(response);
     } catch (error) {
-        console.error('Chat error:', error);
-        res.status(500).json({ 
+        console.error('--- CRITICAL CHAT ERROR ---');
+        console.error('Stack:', error.stack);
+        console.error('Message:', error.message);
+        
+        return res.status(500).json({ 
             message: 'Đã xảy ra lỗi khi xử lý tin nhắn',
             error: error.message 
         });

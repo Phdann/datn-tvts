@@ -1,3 +1,5 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const { User, Role, sequelize } = require('./models');
 
 async function createAdmin() {
@@ -9,11 +11,11 @@ async function createAdmin() {
         const [adminRole] = await Role.findOrCreate({ where: { name: 'Admin' } });
         console.log('Admin role ensured:', adminRole.id);
 
-        const email = 'admin1@due.edu.vn';
+        const email = 'a@gmail.com';
         const [user, created] = await User.findOrCreate({
             where: { email },
             defaults: {
-                password: 'admin123',
+                password: 'a123456',
                 role_id: adminRole.id,
                 name: 'System Admin'
             }
