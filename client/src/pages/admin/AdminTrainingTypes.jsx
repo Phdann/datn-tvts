@@ -153,8 +153,7 @@ export default function AdminTrainingTypes() {
             <FileText className="w-6 h-6 text-blue-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Loại hình đào tạo</h1>
-            <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-0.5">Hệ đào tạo: Chính quy, CLC, Liên kết...</p>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">QUẢN LÝ LOẠI HÌNH ĐÀO TẠO</h1>
           </div>
         </div>
         <button

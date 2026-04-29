@@ -24,6 +24,7 @@ const getImageUrl = (url) => {
 
 export default function AdminNews() {
   const [posts, setPosts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -78,7 +79,16 @@ export default function AdminNews() {
     setLoading(false);
   };
 
-  useEffect(() => { fetch(); }, [page, statusFilter, sortOption]);
+  const fetchCategories = async () => {
+    try {
+      const r = await api.get('/admin/categories');
+      setCategories(r.data || []);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+    }
+  };
+
+  useEffect(() => { fetch(); fetchCategories(); }, [page, statusFilter, sortOption]);
 
   const handleSearch = (e) => {
     if (e) e.preventDefault();
@@ -243,6 +253,20 @@ export default function AdminNews() {
             </div>
 
             <div className="space-y-6">
+              <div>
+                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">Danh mục bài viết</label>
+                <select
+                  value={form.category_id}
+                  onChange={e => setForm({ ...form, category_id: e.target.value })}
+                  className={inputCls}
+                >
+                  <option value="">-- Chọn danh mục --</option>
+                  {categories.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+
               <div className="space-y-4">
                 <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5">Hình ảnh đại diện</label>
                 

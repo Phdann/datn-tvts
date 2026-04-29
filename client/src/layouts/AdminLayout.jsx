@@ -24,6 +24,7 @@ export const navItems = [
   {
     label: 'Nội dung', icon: BookOpen, children: [
       { label: 'Bài viết', to: '/admin/news' },
+      { label: 'Danh mục bài viết', to: '/admin/categories' },
       { label: 'Banner', to: '/admin/banners' },
       { label: 'Học bổng', to: '/admin/scholarships' },
       { label: 'Chính sách', to: '/admin/policies' },

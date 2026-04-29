@@ -47,6 +47,7 @@ import AdminScholarships from './pages/admin/AdminScholarships';
 import AdminPolicies from './pages/admin/AdminPolicies';
 import AdminChatStatistics from './pages/admin/AdminChatStatistics';
 import AdminTrainingTypes from './pages/admin/AdminTrainingTypes';
+import AdminCategories from './pages/admin/AdminCategories';
 import MaintenancePage from './pages/admin/MaintenancePage';
 
 import ScholarshipPage from './pages/ScholarshipPage';
@@ -141,6 +142,7 @@ function App() {
                       <Route path="quotas" element={<AdminQuotas />} />
                       <Route path="training-types" element={<AdminTrainingTypes />} />
                       <Route path="news" element={<AdminNews />} />
+                      <Route path="categories" element={<AdminCategories />} />
                       <Route path="events" element={<AdminEvents />} />
                       <Route path="banners" element={<AdminBanners />} />
                       <Route path="scholarships" element={<AdminScholarships />} />
