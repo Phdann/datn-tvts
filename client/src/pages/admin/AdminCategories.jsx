@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Search, ArrowUpDown, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, ArrowUpDown, X, Loader2 } from 'lucide-react';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useToast } from '../../context/ToastContext';
@@ -220,12 +220,12 @@ export default function AdminCategories() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex-[2] px-6 py-3.5 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 px-6 py-3.5 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {saving ? (
                     <>
-                      <LoadingSpinner size="sm" color="white" />
-                      Đang lưu...
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Đang lưu...</span>
                     </>
                   ) : (
                     'Lưu danh mục'
