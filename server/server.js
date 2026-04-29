@@ -86,8 +86,39 @@ if (process.env.NODE_ENV !== 'test') {
     
     if (shouldSync) {
         console.log('Database sync enabled, starting in background...');
-        db.sequelize.sync().then(() => {
+        db.sequelize.sync().then(async () => {
             console.log("Database Synced Successfully!");
+            
+            // Fix null slugs for categories (one-time check on startup)
+            try {
+                const categories = await db.Category.findAll({ where: { slug: null } });
+                if (categories.length > 0) {
+                    console.log(`[Startup] Found ${categories.length} categories with null slug, fixing...`);
+                    // Simple slugify for startup fix
+                    const simpleSlugify = (str) => {
+                        if (!str) return '';
+                        return str.toLowerCase()
+                            .replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a")
+                            .replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e")
+                            .replace(/ì|í|ị|ỉ|ĩ/g, "i")
+                            .replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o")
+                            .replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u")
+                            .replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y")
+                            .replace(/đ/g, "d")
+                            .replace(/[^a-z0-9 -]/g, "")
+                            .replace(/\s+/g, "-")
+                            .replace(/-+/g, "-")
+                            .trim();
+                    };
+                    for (const c of categories) {
+                        const newSlug = simpleSlugify(c.name);
+                        console.log(`[Startup] Updating ${c.name} -> ${newSlug}`);
+                        await c.update({ slug: newSlug });
+                    }
+                }
+            } catch (err) {
+                console.error("[Startup] Error fixing category slugs:", err.message);
+            }
         }).catch((err) => {
             console.error("Failed to sync database:", err.message);
             // Không thoát process ở đây để server vẫn có thể phản hồi lỗi qua API
