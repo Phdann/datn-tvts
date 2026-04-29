@@ -108,51 +108,81 @@ function ChartCard({ data }) {
   );
 }
 
+/* ─────────── Suggestions List ─────────── */
+function SuggestionList({ suggestions, onSelect, disabled }) {
+  if (!suggestions || suggestions.length === 0) return null;
+  return (
+    <div className="flex flex-wrap gap-2 mt-3 ml-8">
+      {suggestions.map((text, i) => (
+        <button
+          key={i}
+          disabled={disabled}
+          onClick={() => onSelect(text)}
+          className="bg-white hover:bg-slate-50 text-[#2563eb] text-xs font-bold px-3 py-2 border border-[#2563eb]/20 shadow-sm transition-all hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed rounded-full"
+        >
+          {text} ✨
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /* ─────────── Single Chat Bubble ─────────── */
-function ChatBubble({ msg }) {
+function ChatBubble({ msg, onSelectSuggestion, isLatest, loading }) {
   const isUser = msg.role === 'user';
 
   return (
-    <div className={`flex items-end gap-2 ${isUser ? 'flex-row-reverse' : ''}`}>
-      {/* Avatar */}
-      <div
-        className={`w-7 h-7 flex items-center justify-center shrink-0 rounded-full overflow-hidden ${
-          isUser ? 'bg-slate-700' : 'bg-white border border-slate-100 shadow-sm'
-        }`}
-      >
-        {isUser
-          ? <User className="w-3.5 h-3.5 text-white" />
-          : <img src={logoDue} alt="DUE Logo" className="w-full h-full object-contain" />
-        }
-      </div>
-
-      {/* Content */}
-      <div className={`max-w-[80%] ${isUser ? 'ml-8' : 'mr-8'}`}>
+    <div className="flex flex-col gap-1">
+      <div className={`flex items-end gap-2 ${isUser ? 'flex-row-reverse' : ''}`}>
+        {/* Avatar */}
         <div
-          className={`px-4 py-2.5 text-[13px] leading-relaxed break-words border border-slate-100 shadow-sm ${
-            isUser
-              ? 'bg-slate-50 text-slate-700 font-bold rounded-2xl rounded-br-[4px]'
-              : 'bg-white text-slate-600 font-medium rounded-2xl rounded-bl-[4px]'
+          className={`w-7 h-7 flex items-center justify-center shrink-0 rounded-full overflow-hidden ${
+            isUser ? 'bg-slate-700' : 'bg-white border border-slate-100 shadow-sm'
           }`}
         >
-          {isUser ? (
-            <p className="whitespace-pre-wrap">{msg.content}</p>
-          ) : (
-            <div className="chat-markdown prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0.5 prose-headings:my-2 prose-a:text-[#2563eb] prose-strong:text-slate-900">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
-            </div>
-          )}
+          {isUser
+            ? <User className="w-3.5 h-3.5 text-white" />
+            : <img src={logoDue} alt="DUE Logo" className="w-full h-full object-contain" />
+          }
         </div>
 
-        {/* Structured data cards */}
-        {msg.majorCard && <MajorCard data={msg.majorCard} />}
-        {msg.chart && <ChartCard data={msg.chart} />}
+        {/* Content */}
+        <div className={`max-w-[80%] ${isUser ? 'ml-8' : 'mr-8'}`}>
+          <div
+            className={`px-4 py-2.5 text-[13px] leading-relaxed break-words border border-slate-100 shadow-sm ${
+              isUser
+                ? 'bg-slate-50 text-slate-700 font-bold rounded-2xl rounded-br-[4px]'
+                : 'bg-white text-slate-600 font-medium rounded-2xl rounded-bl-[4px]'
+            }`}
+          >
+            {isUser ? (
+              <p className="whitespace-pre-wrap">{msg.content}</p>
+            ) : (
+              <div className="chat-markdown prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-li:my-0.5 prose-headings:my-2 prose-a:text-[#2563eb] prose-strong:text-slate-900">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+              </div>
+            )}
+          </div>
 
-        {/* Timestamp */}
-        <p className={`text-[10px] mt-1 ${isUser ? 'text-right' : ''} text-slate-400`}>
-          {msg.time || ''}
-        </p>
+          {/* Structured data cards */}
+          {msg.majorCard && <MajorCard data={msg.majorCard} />}
+          {msg.chart && <ChartCard data={msg.chart} />}
+
+          {/* Timestamp */}
+          <p className={`text-[10px] mt-1 ${isUser ? 'text-right' : ''} text-slate-400`}>
+            {msg.time || ''}
+          </p>
+        </div>
       </div>
+      
+      {/* Suggestions - Only show for latest assistant message */}
+      {!isUser && isLatest && msg.suggestions && (
+        <SuggestionList 
+          suggestions={msg.suggestions} 
+          onSelect={onSelectSuggestion} 
+          disabled={loading}
+        />
+      )}
     </div>
   );
 }
@@ -295,8 +325,8 @@ export default function ChatWidget() {
   };
 
   /* ---- Send message ---- */
-  const handleSend = async () => {
-    const text = input.trim();
+  const handleSend = async (customText = null) => {
+    const text = typeof customText === 'string' ? customText : input.trim();
     if (!text || loading) return;
 
     const now = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
@@ -323,7 +353,8 @@ export default function ChatWidget() {
         content: res.reply || 'Không nhận được phản hồi.',
         time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
         majorCard: res.majorCard || null,
-        chart: res.chart || null
+        chart: res.chart || null,
+        suggestions: res.suggestions || []
       };
 
       setMessages((prev) => [...prev, botMsg]);
@@ -492,8 +523,14 @@ export default function ChatWidget() {
               <WelcomeForm onSubmit={handleWelcomeSubmit} />
             ) : (
               <>
-                {messages.map((msg) => (
-                  <ChatBubble key={msg.id} msg={msg} />
+                {messages.map((msg, idx) => (
+                  <ChatBubble 
+                    key={msg.id} 
+                    msg={msg} 
+                    isLatest={idx === messages.length - 1}
+                    onSelectSuggestion={(text) => handleSend(text)}
+                    loading={loading}
+                  />
                 ))}
                 {loading && <TypingDots />}
                 <div ref={scrollRef} />

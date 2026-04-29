@@ -54,7 +54,8 @@ const sendMessage = async (req, res) => {
 
         const response = {
             sessionId: session.id,
-            reply: aiResponse.reply || 'Máy chủ bận, vui lòng thử lại sau.'
+            reply: aiResponse.reply || 'Máy chủ bận, vui lòng thử lại sau.',
+            suggestions: aiResponse.suggestions || []
         };
 
         if (aiResponse.related_data?.type === 'major_card') {
