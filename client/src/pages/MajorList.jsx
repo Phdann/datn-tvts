@@ -33,15 +33,7 @@ export default function MajorList() {
 
       setMajors(uniqueMajors);
 
-      // If the backend total is suspiciously high (inflation due to joins), 
-      // and we have all items in this response, we use the unique count.
-      // Otherwise, we use the backend total if it seems plausible.
-      // For this specific fix, we prioritize the unique count found in the current set.
-      const trueCount = (data.total > uniqueMajors.length && rawData.length === data.total)
-        ? uniqueMajors.length
-        : (data.total || 0);
-
-      setTotalItems(uniqueMajors.length); // Direct fix for the reported issue
+      setTotalItems(data.total || 0);
       setTotalPages(data.totalPages || 1);
     } catch (err) {
       setError(err.message || 'Không thể tải danh sách ngành');

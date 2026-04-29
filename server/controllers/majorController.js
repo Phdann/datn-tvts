@@ -32,6 +32,7 @@ const getAllMajors = async (req, res) => {
                 { model: HistoricalScore, include: [AdmissionMethod] },
                 { model: TrainingType, as: 'TrainingTypes' }
             ],
+            distinct: true,
             limit: parseInt(limit),
             offset: parseInt(offset),
             order: [['createdAt', 'DESC']]
