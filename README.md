@@ -9,7 +9,7 @@
   
 ## 🌐 Trải nghiệm hệ thống (Live Demo)
 
-- **Trang dành cho Thí sinh (Client):** [https://datn-tvts-twht.vercel.app/](https://datn-tvts-twht.vercel.app/)
+- **Trang dành cho Thí sinh (Client):** [https://datn-tvts-twht.vercel.app](https://datn-tvts-twht.vercel.app)
 - **Trang Quản trị viên (Admin):** [https://datn-tvts-twht.vercel.app/admin/login](https://datn-tvts-twht.vercel.app/admin/login)
 - **Tài khoản admin demo:**
   - Email: admin@due.edu.vn
