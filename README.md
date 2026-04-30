@@ -6,8 +6,14 @@
 ## 👥 Đội ngũ thực hiện
 
 - **Sinh viên thực hiện:** Lê Nguyễn Ngọc Tú Hương & Trần Phương Đan
----
+  
+## 🌐 Trải nghiệm hệ thống (Live Demo)
 
+- **Trang dành cho Thí sinh (Client):** [https://datn-tvts-twht.vercel.app/](https://datn-tvts-twht.vercel.app/)
+- **Trang Quản trị viên (Admin):** [https://datn-tvts-twht.vercel.app/admin/login](https://datn-tvts-twht.vercel.app/admin/login)
+- **Tài khoản admin demo:**
+  - Email: admin@due.edu.vn
+  - Password: admin123
 ## 📖 1. Tóm tắt dự án (Overview)
 
 Dự án là một hệ thống Website Full-stack hỗ trợ tư vấn tuyển sinh đại học, được tích hợp công nghệ **Trí tuệ nhân tạo (AI)** tiên tiến. Đặc biệt, hệ thống ứng dụng mô hình **RAG (Retrieval-Augmented Generation)** kết hợp với Mô hình ngôn ngữ lớn (LLM - Gemini) để xây dựng một **AI Chatbot** có khả năng tự động đọc hiểu tài liệu của trường và tư vấn chính xác cho thí sinh theo thời gian thực.
