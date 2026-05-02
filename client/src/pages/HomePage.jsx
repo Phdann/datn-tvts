@@ -78,7 +78,7 @@ function HeroSection({ banners }) {
             </h1>
 
             <p className="mt-6 text-lg text-white/70 leading-relaxed max-w-lg font-medium">
-              Trường Đại học Kinh tế — Đại học Đà Nẵng. Hơn 55 năm đào tạo nguồn
+              Trường Đại học Kinh tế — Đại học Đà Nẵng. Hơn 50 năm đào tạo nguồn
               nhân lực chất lượng cao trong lĩnh vực Kinh tế, Quản trị và Công nghệ.
             </p>
 
@@ -421,7 +421,7 @@ function WhyDUESection() {
     {
       icon: Award,
       title: 'Uy tín hàng đầu khu vực miền Trung',
-      desc: 'Được thành lập từ năm 1969, Trường ĐH Kinh tế là thành viên của ĐH Đà Nẵng — một trong những đại học trọng điểm quốc gia.',
+      desc: 'Được thành lập từ năm 1975, Trường ĐH Kinh tế là thành viên của ĐH Đà Nẵng — một trong những đại học trọng điểm quốc gia.',
     },
     {
       icon: BookOpen,
@@ -461,7 +461,7 @@ function WhyDUESection() {
             Tại sao chọn Đại học Kinh tế?
           </h2>
           <p className="mt-3 text-slate-500 max-w-2xl mx-auto">
-            Với hơn 55 năm kinh nghiệm đào tạo, DUE là sự lựa chọn hàng đầu cho
+            Với hơn 50 năm kinh nghiệm đào tạo, DUE là sự lựa chọn hàng đầu cho
             hành trình phát triển sự nghiệp của bạn.
           </p>
         </div>
