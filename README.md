@@ -26,10 +26,11 @@ Mục tiêu cốt lõi của đề tài là:
 ## ✨ 2. Các tính năng nổi bật
 
 ### 👨‍🎓 Dành cho Thí sinh (Người dùng)
-- **AI Chatbot Tư vấn:** Chatbot thông minh trả lời mọi câu hỏi về tuyển sinh, học phí, chương trình đào tạo dựa trên tài liệu thực tế của trường.
+- **AI Chatbot Tư vấn (RAG):** Chatbot thông minh trả lời mọi câu hỏi về tuyển sinh, học phí, chương trình đào tạo dựa trên tài liệu thực tế của trường. Hỗ trợ hiển thị **Thẻ ngành học** ngay trong hội thoại.
+- **Tùy chỉnh đối tượng tư vấn (Persona):** Người dùng có thể chọn chế độ tư vấn dành cho "Học sinh" hoặc "Phụ huynh" để nhận được câu trả lời với văn phong và trọng tâm phù hợp.
 - **Xử lý câu hỏi mơ hồ (Smart Ambiguity Handling):** Hệ thống có khả năng nhận diện các câu hỏi thiếu thông tin (ví dụ: chỉ hỏi "điểm chuẩn"). AI sẽ chủ động hỏi ngược lại để làm rõ nhu cầu và đưa ra các gợi ý chủ đề liên quan (Quick Replies) để người dùng dễ dàng tương tác.
 - **Tra cứu ngành học & Điểm chuẩn:** Xem thông tin chi tiết về các ngành, chuyên ngành, tổ hợp xét tuyển và biểu đồ điểm chuẩn các năm.
-- **Công cụ tính điểm:** Hỗ trợ thí sinh nhập điểm thi/học bạ để tính tổng điểm (có cộng điểm ưu tiên) và gợi ý các ngành phù hợp.
+- **Công cụ tính điểm:** Hỗ trợ thí sinh nhập điểm thi/học bạ để tính tổng điểm (có cộng điểm ưu tiên).
 
 ### 👨‍💻 Dành cho Quản trị viên (Admin/Cán bộ Trường)
 - **Quản lý Dữ liệu Tuyển sinh:** Thêm, sửa, xóa thông tin Ngành, Chuyên ngành, Phương thức, Chỉ tiêu, Điểm chuẩn.
@@ -65,23 +66,34 @@ Hệ thống được thiết kế theo kiến trúc **Microservices (Quy mô nh
 - **Python** (v3.9 trở lên)
 - **MySQL Server** (chạy ở cổng 3306)
 
+### Bước 0: Clone mã nguồn
+```bash
+git clone https://github.com/Phdann/datn-tvts.git
+cd datn-tvts
+```
+
 ### Bước 1: Cài đặt Dependencies
 Bạn cần mở 3 Terminal/Command Prompt để cài đặt cho 3 thư mục tương ứng:
-
 ```bash
 # 1. Cài đặt Frontend
 cd client
 npm install
+cd ..
 
 # 2. Cài đặt Backend Node.js
 cd server
 npm install
+cd ..
 
 # 3. Cài đặt AI Service (Python)
 cd ser-py
 python -m venv venv
+# Windows:
 .\venv\Scripts\activate
+# Linux/macOS:
+# source venv/bin/activate
 pip install -r requirements.txt
+cd ..
 ```
 
 ### Bước 2: Cấu hình biến môi trường (.env)
@@ -100,7 +112,7 @@ CLOUDINARY_URL=your_cloudinary_url_for_image_upload
 
 **`ser-py/.env`**
 ```env
-GEMINI_API_KEY=your_google_gemini_api_key_here
+GEMINI_KEYS=key1,key2,key3... # Có thể nhập một hoặc nhiều key cách nhau bằng dấu phẩy
 ```
 
 **`client/.env`**
@@ -108,7 +120,20 @@ GEMINI_API_KEY=your_google_gemini_api_key_here
 VITE_API_URL=http://localhost:5000
 ```
 
-### Bước 3: Khởi chạy dự án (One-click)
+### Bước 3: Khởi tạo Cơ sở dữ liệu (Database)
+Trước khi chạy hệ thống, bạn cần khởi tạo dữ liệu:
+1. Mở MySQL và tạo một database mới:
+```sql
+CREATE DATABASE datn_tvts;
+```
+2. Chạy lệnh đồng bộ cấu trúc bảng và tạo tài khoản Admin:
+```bash
+cd server
+node sync-db.js      # Tạo các bảng trong database
+node create-admin.js  # Tạo tài khoản quản trị mặc định
+```
+
+### Bước 4: Khởi chạy dự án (One-click)
 
 Để tiện lợi cho việc báo cáo, hệ thống có cung cấp file script khởi chạy tự động trên Windows.
 
