@@ -10,13 +10,34 @@ import PageHeader from '../components/PageHeader';
 
 /* ──────────────── HISTORY TIMELINE ──────────────── */
 const milestones = [
-  { year: '1969', event: 'Thành lập Phân hiệu Đại học Kinh tế tại Đà Nẵng, trực thuộc Trường ĐH Kinh tế TP.HCM.' },
-  { year: '1975', event: 'Tái thành lập và đổi tên thành Trường Đại học Kinh tế Đà Nẵng.' },
-  { year: '1994', event: 'Trở thành trường thành viên của Đại học Đà Nẵng — đại học vùng trọng điểm quốc gia.' },
-  { year: '2004', event: 'Mở rộng đào tạo nhiều ngành mới, bắt đầu chương trình liên kết quốc tế.' },
-  { year: '2014', event: 'Đạt kiểm định chất lượng giáo dục cấp cơ sở đào tạo theo tiêu chuẩn Bộ GD&ĐT.' },
-  { year: '2020', event: 'Chuyển đổi số toàn diện, triển khai đào tạo trực tuyến và ứng dụng AI trong quản lý.' },
-  { year: '2026', event: 'Tiếp tục phát triển với hơn 30 ngành đào tạo, hướng tới đạt chuẩn kiểm định quốc tế.' },
+  { 
+    year: '1975', 
+    event: 'Ngày 11/7/1975, Viện Đại học Đà Nẵng chính thức được thành lập, mở ra chương đầu tiên của giáo dục đại học khu vực miền Trung.' 
+  },
+  { 
+    year: '1976', 
+    event: 'Khai giảng khóa đầu tiên (29/3/1976) khẳng định sự hiện diện chính thức của Khoa Kinh tế - tiền thân của DUE ngày nay.' 
+  },
+  { 
+    year: '1985', 
+    event: 'Thành lập Phân hiệu Đại học Kinh tế Đà Nẵng tại Mỹ An, đặt viên gạch đầu tiên cho sự lớn mạnh sau này.' 
+  },
+  { 
+    year: '1994', 
+    event: 'Thành lập Trường ĐH Kinh tế và Quản trị Kinh doanh, chính thức trở thành trường thành viên chủ lực của Đại học Đà Nẵng.' 
+  },
+  { 
+    year: '2004', 
+    event: 'Đổi tên thành Trường Đại học Kinh tế - Đại học Đà Nẵng, định vị thương hiệu học thuật rõ ràng trong nước và quốc tế.' 
+  },
+  { 
+    year: '2015', 
+    event: 'Đón nhận Huân chương Lao động hạng Nhất và thực hiện hiện đại hóa mạnh mẽ về quản trị và kiểm định quốc tế.' 
+  },
+  { 
+    year: '2025', 
+    event: 'Kỷ niệm 50 năm hành trình kiến tạo tri thức, hướng tới trở thành đại học nghiên cứu hàng đầu thế giới.' 
+  },
 ];
 
 /* ──────────────── CORE VALUES ──────────────── */
@@ -24,19 +45,19 @@ const coreValues = [
   {
     icon: Target,
     title: 'Sứ mệnh',
-    desc: 'Đào tạo nguồn nhân lực chất lượng cao trong lĩnh vực Kinh tế, Kinh doanh, Quản lý và Công nghệ; nghiên cứu khoa học và chuyển giao công nghệ phục vụ phát triển kinh tế — xã hội khu vực miền Trung — Tây Nguyên và cả nước.',
+    desc: 'Tạo dựng môi trường học thuật tiên tiến và nhân văn, thúc đẩy khám phá và chuyển giao tri thức, nuôi dưỡng và phát triển tài năng, bản lĩnh và tinh thần phụng sự cộng đồng.',
     color: 'bg-blue-600',
   },
   {
     icon: Lightbulb,
     title: 'Tầm nhìn',
-    desc: 'Trở thành trường đại học hàng đầu khu vực trong lĩnh vực đào tạo Kinh tế — Quản trị — Công nghệ, đạt chuẩn kiểm định quốc tế, hội nhập sâu rộng với hệ thống giáo dục đại học quốc tế.',
+    desc: 'Trở thành trường đại học nghiên cứu hàng đầu khu vực, tiên phong khám phá và chuyển giao tri thức, khẳng định vị thế trên bản đồ giáo dục đại học thế giới.',
     color: 'bg-emerald-600',
   },
   {
     icon: Heart,
     title: 'Giá trị cốt lõi',
-    desc: 'Chất lượng — Sáng tạo — Trách nhiệm — Hội nhập. Lấy người học làm trung tâm, gắn đào tạo với thực tiễn, kết hợp giữa truyền thống và đổi mới.',
+    desc: 'Học thuật — Trách nhiệm — Đổi mới — Phục vụ cộng đồng. DUE lấy người học làm trung tâm, gắn kết đào tạo với thực tiễn và hội nhập quốc tế sâu rộng.',
     color: 'bg-violet-600',
   },
 ];
@@ -99,7 +120,7 @@ export default function AboutPage() {
     { icon: Building2, value: `${faculties.length || '8'}`, label: 'Khoa đào tạo' },
     { icon: GraduationCap, value: `${totalMajors || '30+'}`, label: 'Ngành đào tạo' },
     { icon: Users, value: '15,000+', label: 'Sinh viên' },
-    { icon: Award, value: '55+', label: 'Năm xây dựng' },
+    { icon: Award, value: '50+', label: 'Năm xây dựng' },
     { icon: Globe, value: '30+', label: 'Đối tác quốc tế' },
     { icon: TrendingUp, value: '95%', label: 'Có việc làm sau 1 năm' },
   ];
@@ -124,20 +145,14 @@ export default function AboutPage() {
               <br />
               <span className="text-primary">Đại học Đà Nẵng</span>
             </h2>
-            <p className="text-sm text-slate-600 leading-relaxed mb-4">
-              Trường Đại học Kinh tế — Đại học Đà Nẵng (DUE - Da Nang University of Economics) là trường đại học
-              thành viên thuộc Đại học Đà Nẵng — một trong ba đại học vùng trọng điểm quốc gia. Được thành lập
-              từ năm 1969, trường có bề dày hơn 55 năm lịch sử xây dựng và phát triển.
+            <p className="text-sm text-slate-600 leading-relaxed mb-4 italic border-l-4 border-primary pl-4 py-2 bg-slate-50 rounded-r-lg font-medium">
+              "Những dấu mốc đầu tiên không chỉ ghi nhận sự ra đời của một cơ sở giáo dục đại học, mà còn mở ra hành trình nửa thế kỷ kiến tạo tri thức của một học hiệu mang khát vọng Việt Nam và tầm nhìn quốc tế."
             </p>
             <p className="text-sm text-slate-600 leading-relaxed mb-4">
-              Trường là cơ sở đào tạo, nghiên cứu khoa học hàng đầu khu vực miền Trung — Tây Nguyên trong
-              các lĩnh vực Kinh tế, Kinh doanh, Quản lý, Luật và Công nghệ thông tin. Trường đào tạo đầy đủ
-              các bậc từ Cử nhân, Thạc sĩ đến Tiến sĩ.
+              Khởi nguyên từ năm 1975, ngay sau ngày đất nước thống nhất, Khoa Kinh tế đã nhanh chóng định hình sứ mệnh đào tạo nguồn nhân lực chất lượng cao cho miền Trung — Tây Nguyên và cả nước. Trải qua 50 năm, DUE đã vươn mình mạnh mẽ từ những lớp học đơn sơ những ngày đầu giải phóng để trở thành một đại học nghiên cứu hàng đầu.
             </p>
             <p className="text-sm text-slate-600 leading-relaxed">
-              Với phương châm <em className="font-semibold text-primary">"Chất lượng — Sáng tạo — Trách nhiệm — Hội nhập"</em>,
-              DUE không ngừng đổi mới chương trình đào tạo, nâng cao chất lượng nghiên cứu khoa học và mở rộng
-              hợp tác quốc tế, hướng tới trở thành trường đại học đạt chuẩn kiểm định quốc tế.
+              Với phương châm <em className="font-semibold text-primary">"Học thuật — Trách nhiệm — Đổi mới — Phục vụ cộng đồng"</em>, DUE không ngừng tiên phong trong đổi mới sáng tạo, kiểm định quốc tế và chuyển giao tri thức, hướng tới mục tiêu đại học bền vững và khẳng định vị thế Việt Nam trên bản đồ giáo dục thế giới.
             </p>
           </div>
 
