@@ -162,7 +162,7 @@ export default function AboutPage() {
             <BookOpen className="w-10 h-10 mb-4 opacity-60" />
             <h3 className="text-lg font-bold mb-4">Truyền thống & Đổi mới</h3>
             <p className="text-sm text-white/80 leading-relaxed mb-6">
-              Kế thừa truyền thống hơn 55 năm xây dựng và phát triển, Trường Đại học Kinh tế không ngừng
+              Kế thừa truyền thống hơn 50 năm xây dựng và phát triển, Trường Đại học Kinh tế không ngừng
               đổi mới chương trình đào tạo, ứng dụng công nghệ tiên tiến, hướng tới đạt chuẩn kiểm định
               quốc tế và đào tạo nguồn nhân lực chất lượng cao cho đất nước.
             </p>
