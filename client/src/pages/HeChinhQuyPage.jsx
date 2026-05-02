@@ -105,8 +105,18 @@ export default function HeChinhQuyPage() {
                   to={`/khoa/${fac.slug || fac.id}`}
                   className="flex items-center gap-4 bg-slate-50 px-6 py-4 hover:bg-primary/5 transition-colors group"
                 >
-                  <div className="w-10 h-10 bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary transition-colors">
-                    <Building2 className="w-5 h-5 text-primary group-hover:text-white transition-colors" />
+                  <div className="w-12 h-12 shrink-0 rounded-full overflow-hidden border border-slate-100 group-hover:border-primary transition-all bg-white flex items-center justify-center">
+                    {fac.logo_url ? (
+                      <img 
+                        src={fac.logo_url.startsWith('http') ? fac.logo_url : `${import.meta.env.VITE_API_URL.replace('/api', '')}${fac.logo_url}`} 
+                        alt={fac.name} 
+                        className="w-full h-full object-cover" 
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-slate-50 flex items-center justify-center group-hover:bg-primary transition-colors">
+                        <Building2 className="w-5 h-5 text-primary group-hover:text-white transition-colors" />
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1">
                     <h3 className="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors">{fac.name}</h3>
