@@ -30,7 +30,6 @@ const faqData = [
     category: 'Công nghệ & Hỗ trợ',
     items: [
       { q: 'Tư vấn viên AI hoạt động như thế nào?', a: 'Tư vấn viên AI sử dụng trí tuệ nhân tạo để trả lời các câu hỏi về tuyển sinh, chương trình đào tạo, và thông tin trường. Bạn có thể trò chuyện trực tiếp qua trang Tư vấn trực tuyến.' },
-      { q: 'Tính năng dự đoán trúng tuyển hoạt động ra sao?', a: 'Dựa trên dữ liệu điểm chuẩn các năm trước, hệ thống phân tích và dự đoán khả năng trúng tuyển của bạn vào ngành mong muốn. Kết quả mang tính tham khảo.' },
     ]
   },
 ];
